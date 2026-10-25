@@ -1,0 +1,123 @@
+.progress {
+  flex: 1;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--color-track);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-pill);
+  transition: width 0.3s;
+}
+
+.count {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.eyebrow {
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.question {
+  margin: 8px 0 40px;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--color-heading);
+  white-space: pre-line;
+}
+
+.question:focus {
+  outline: none;
+}
+
+.opts {
+  display: grid;
+  gap: 16px;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-line);
+  background: var(--color-bg);
+  color: var(--color-heading);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+  text-align: left;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+}
+
+.opt:hover {
+  border-color: var(--color-primary-line);
+}
+
+.letter {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--color-fill);
+  display: grid;
+  place-items: center;
+  color: var(--color-text-sub);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.on {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.on .letter {
+  background: var(--color-primary-a08);
+  color: var(--color-primary);
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hint img {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+}
+
+.bubble {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--color-primary-a15);
+  border-radius: 16px 16px 16px 4px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-bubble);
+  color: var(--color-text-body);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+}

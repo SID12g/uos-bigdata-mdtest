@@ -1,0 +1,596 @@
+.body {
+  padding-bottom: 28px;
+}
+
+/* ── 유형 카드 (Figma S6 node 17:1205, 이미지 저장 대상) ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0 24px;
+  text-align: center;
+}
+
+.heroImg {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 26px;
+  object-fit: cover;
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.eyebrow {
+  font-size: 14px;
+  color: var(--color-primary);
+}
+
+.persona {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.mdPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.mdPillProg {
+  font-variant-numeric: tabular-nums;
+}
+
+.line {
+  color: var(--color-text-sub);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.tags {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tags i {
+  font-style: normal;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-primary-a20);
+  background: var(--color-bg);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.next {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  border: 1px dashed var(--color-primary);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-sub);
+}
+
+.next b {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.nextBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+
+/* ── 카드 (Figma 선택지 카드와 같은 테두리·모서리) ── */
+.card {
+  margin-top: 12px;
+  padding: 18px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+}
+
+.card h2 {
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--color-heading);
+}
+
+.cardSub {
+  margin-bottom: 14px;
+  color: var(--color-text-sub);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cardText {
+  color: var(--color-text-body);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.good {
+  background: var(--color-good-soft);
+}
+
+.good h2 {
+  color: var(--color-good);
+}
+
+.warn {
+  background: var(--color-warn-soft);
+}
+
+.warn h2 {
+  color: var(--color-warn);
+}
+
+.miniBtn {
+  margin-top: 12px;
+  min-height: var(--tap);
+  font-size: 15px;
+}
+
+.subHead {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-sub);
+  margin-bottom: 8px;
+}
+
+.accent {
+  color: var(--color-primary);
+}
+
+.accentStrong {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.ready {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin: 4px 0 6px;
+}
+
+.ready i {
+  height: 8px;
+  border-radius: 3px;
+  background: var(--color-fill);
+}
+
+.ready i.filled {
+  background: var(--color-primary);
+}
+
+.readyLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-text-faint);
+  margin-bottom: 16px;
+}
+
+.bars {
+  display: grid;
+  gap: 9px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 104px 1fr 36px;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--color-text-sub);
+}
+
+.track {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--color-fill);
+  overflow: hidden;
+}
+
+.track span {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--color-primary-faint);
+}
+
+.barTop {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.barTop .track span {
+  background: var(--color-primary);
+}
+
+.barValue {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.pips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+}
+
+.pips i {
+  height: 10px;
+  border-radius: 3px;
+  background: var(--color-fill);
+}
+
+.pips i.filled {
+  background: var(--color-primary-faint);
+}
+
+.barTop .pips i.filled {
+  background: var(--color-primary);
+}
+
+.barDone .pips i.filled {
+  background: var(--color-good);
+}
+
+.barDone .barValue {
+  color: var(--color-good);
+}
+
+.fine {
+  font-size: 12.5px;
+  color: var(--color-text-sub);
+  margin: 10px 2px 0;
+}
+
+/* ── 로드맵 ── */
+.road {
+  display: grid;
+  gap: 8px;
+}
+
+.road li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--color-fill);
+}
+
+.roadMark {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--color-bg);
+  color: var(--color-text-sub);
+}
+
+.road b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.road small {
+  display: block;
+  font-size: 12px;
+  color: var(--color-text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.road li.roadDone {
+  background: var(--color-primary-soft);
+}
+
+.roadDone .roadMark {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+.badgeOpen {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.badgeIn {
+  background: var(--color-bg);
+  color: var(--color-text-sub);
+  border: 1px solid var(--color-line);
+}
+
+.badgeX {
+  background: var(--color-warn-soft);
+  color: var(--color-warn);
+}
+
+.badgeOk {
+  background: var(--color-good-soft);
+  color: var(--color-good);
+}
+
+/* ── 함께 따기 ── */
+.pair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--color-primary-soft);
+  margin-bottom: 10px;
+}
+
+.pairK {
+  flex: none;
+  white-space: nowrap;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.pairK small {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pair p {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* ── 연계융합 ── */
+.linked {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--color-fill);
+}
+
+.linked + .linked {
+  margin-top: 8px;
+}
+
+.linkedHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.linkedHead b {
+  font-size: 15.5px;
+}
+
+.reqs {
+  display: grid;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.reqs li {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 6px;
+  align-items: start;
+}
+
+.reqNote {
+  display: block;
+  font-size: 12px;
+  color: var(--color-warn);
+}
+
+.ck {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1.5px solid var(--color-line);
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+  background: var(--color-bg);
+}
+
+.ckOn {
+  background: var(--color-good);
+  border-color: var(--color-good);
+  color: var(--color-on-primary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.chips > span {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-line);
+}
+
+.chips > span.chipOpen {
+  border-color: var(--color-primary-line);
+  color: var(--color-primary);
+}
+
+.chips > span.chipTaken {
+  background: var(--color-good-soft);
+  border-color: transparent;
+  color: var(--color-good);
+  font-weight: 600;
+}
+
+/* ── 비교 ── */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.compare > div {
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--color-fill);
+}
+
+.compare > div.compareCur {
+  background: var(--color-primary-soft);
+}
+
+.compare small {
+  display: block;
+  font-size: 12px;
+  color: var(--color-text-sub);
+}
+
+.compare b {
+  font-size: 15px;
+}
+
+/* ── 신청 방법 ── */
+.steps {
+  display: grid;
+  gap: 12px;
+  counter-reset: step;
+}
+
+.steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 10px;
+}
+
+.steps li::before {
+  content: counter(step);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 800;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+}
+
+.steps b {
+  display: block;
+  font-size: 14.5px;
+}
+
+.path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--color-text-sub);
+}
+
+.path > span {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.pathItem {
+  background: var(--color-fill);
+  border-radius: 6px;
+  padding: 1px 7px;
+}
+
+.pathBtn {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 700;
+}
+
+.must {
+  display: block;
+  color: var(--color-warn);
+  font-weight: 700;
+  font-size: 12.5px;
+  margin-top: 3px;
+}
+
+.footNote {
+  font-size: 12.5px;
+  color: var(--color-text-sub);
+  text-align: center;
+  margin: 18px 6px 4px;
+  line-height: 1.6;
+}
+
+.footNote a {
+  color: inherit;
+}
+
+.end {
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}

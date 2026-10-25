@@ -1,0 +1,54 @@
+/* 디자인 토큰 (Figma 기준). 색은 반드시 이 변수로만 쓴다. 앱은 라이트 테마 하나로 고정한다. */
+:root {
+  color-scheme: light;
+
+  --color-primary: #266efb;
+  --color-primary-strong: #1b59d9;
+  --color-primary-soft: #eaf1ff;
+  --color-primary-a08: rgba(38, 110, 251, 0.08);
+  --color-primary-a10: rgba(38, 110, 251, 0.1);
+  --color-primary-a15: rgba(38, 110, 251, 0.15);
+  --color-primary-a20: rgba(38, 110, 251, 0.2);
+  --color-primary-a25: rgba(38, 110, 251, 0.25);
+  --color-primary-line: #c9dafe;
+  --color-primary-faint: #bfd2fb;
+  --color-on-primary: #ffffff;
+
+  --color-heading: #000000;
+  --color-text: #14171f;
+  --color-text-body: #4b5563;
+  --color-text-sub: #6b7280;
+  --color-text-faint: #9ca3af;
+
+  --color-bg: #ffffff;
+  --color-bg-end: #e8f0ff;
+  --color-fill: #f1f5fc;
+  --color-track: #e6ecf5;
+  --color-line: #e3e8f0;
+  --color-line-blue: #dbe5f7;
+  --color-card: #ffffff;
+
+  --color-good: #11994b;
+  --color-good-soft: #e7f6ed;
+  --color-warn: #b45309;
+  --color-warn-soft: #fdf2e3;
+  --color-highlight: #fff1b8;
+  --color-toast: rgba(20, 23, 31, 0.92);
+
+  --gradient-screen: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg) 35%, var(--color-bg-end) 100%);
+  --gradient-orbit: radial-gradient(circle closest-side, var(--color-primary-a20) 0%, rgba(38, 110, 251, 0) 100%);
+  --shadow-cta: 0 8px 10px var(--color-primary-a25);
+  --shadow-chip: 0 4px 6px var(--color-primary-a15);
+  --shadow-bubble: 0 6px 8px var(--color-primary-a10);
+
+  --font-app: 'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-pill: 100px;
+
+  --gutter: 20px;
+  --app-max: 430px;
+  --tap: 44px;
+}

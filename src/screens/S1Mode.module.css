@@ -1,0 +1,121 @@
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+.greeting {
+  color: var(--color-text-sub);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.heading {
+  margin-top: 8px;
+}
+
+.heading em {
+  font-style: normal;
+  color: var(--color-primary);
+}
+
+.stage {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 40px 0 8px;
+}
+
+.figure {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 말풍선은 궤도 위쪽 가장자리에 14px 걸친다 */
+.bubble {
+  position: relative;
+  z-index: 1;
+  margin-bottom: -14px;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-primary-a15);
+  background: var(--color-bg);
+  box-shadow: 0 6px 9px var(--color-primary-a15);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.mode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 14px;
+  border-radius: 15px;
+  border: 1px solid var(--color-line-blue);
+  background: var(--color-bg);
+  text-align: left;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.mode:hover {
+  border-color: var(--color-primary);
+}
+
+.primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-cta);
+  color: var(--color-on-primary);
+}
+
+.primary:hover {
+  background: var(--color-primary-strong);
+}
+
+.mode > img {
+  flex: none;
+}
+
+.iconBox {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-a08);
+  display: grid;
+  place-items: center;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.text b {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.text small {
+  font-size: 12px;
+  color: var(--color-text-sub);
+}
+
+.primary .text b,
+.primary .text small {
+  color: var(--color-on-primary);
+}

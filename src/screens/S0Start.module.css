@@ -1,0 +1,121 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: calc(32px + env(safe-area-inset-top, 0px));
+  overflow-x: clip;
+}
+
+.footer {
+  gap: 16px;
+}
+
+.pill {
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-a10);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.heading {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-heading);
+}
+
+.heading em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.sub {
+  margin-top: 20px;
+  color: var(--color-text-sub);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+/* 362×280 궤도 + 칩 묶음 */
+.group {
+  position: relative;
+  width: 362px;
+  height: 280px;
+  flex: none;
+  margin-top: 54px;
+}
+
+.orbit {
+  position: absolute;
+  left: 41px;
+  top: 0;
+  border: 1px solid var(--color-primary-a20);
+}
+
+.orbit img {
+  animation: float 4s ease-in-out infinite;
+}
+
+.chips {
+  position: absolute;
+  inset: 0;
+}
+
+.chip {
+  position: absolute;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-primary);
+  background: var(--color-bg);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  box-shadow: var(--shadow-chip);
+  white-space: nowrap;
+}
+
+.copy {
+  text-align: center;
+  color: var(--color-text-sub);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* 360–401px 폭: 묶음 전체를 줄여 가로 스크롤을 막는다 (zoom은 레이아웃 크기도 함께 줄인다) */
+@media (max-width: 401px) {
+  .group {
+    zoom: 0.95;
+  }
+}
+
+@media (max-width: 390px) {
+  .group {
+    zoom: 0.88;
+  }
+}
+
+@media (max-width: 359px) {
+  .group {
+    zoom: 0.8;
+  }
+}

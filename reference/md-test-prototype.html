@@ -1,0 +1,1242 @@
+<title>MD 유형 테스트 프로토타입</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: 리뷰 보드 — 화면 흐름 목록 | 실제로 눌러보는 폰 | 이 화면의 로직(스펙). 전체 플로우 탭은 같은 화면을 축소해 가로로 나열 */
+:root{
+  --bg:#ECF0F6; --bg-dot:#D2DAE7; --panel:#FFFFFF; --ink:#101828; --muted:#5A6478; --line:#DBE2ED;
+  --accent:#266EFB; --accent-soft:#E7EEFF; --good:#0E9F6E; --warn:#C2410C;
+  --font-ui:"IBM Plex Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  /* 앱 화면은 첫 화면 시안의 라이트 룩으로 고정 */
+  --a-blue:#266EFB; --a-blue-d:#1B59D9; --a-blue-soft:#EAF1FF; --a-blue-line:#C9DAFE; --a-on:#FFFFFF;
+  --a-ink:#14171F; --a-sub:#6B7280; --a-faint:#9AA3B2; --a-line:#E5E9F1; --a-card:#FFFFFF; --a-bg:#FFFFFF; --a-bg2:#EEF3FE; --a-fill:#F4F6FA;
+  --a-good:#11994B; --a-good-soft:#E7F6ED; --a-amber:#B45309; --a-amber-soft:#FDF2E3; --a-shadow:rgba(38,110,251,.10);
+  --font-app:"Pretendard","Pretendard Variable","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+  --bezel:#0B0F19; --bezel-edge:#2A3142; --island:#000000;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C111B; --bg-dot:#1A2232; --panel:#131A27; --ink:#E6EBF4; --muted:#97A2B6; --line:#253044;
+  --accent:#7AA5FF; --accent-soft:#1A2744; --good:#34D399; --warn:#FB923C; color-scheme:dark;
+  --bezel:#05070C; --bezel-edge:#30384B;
+}}
+:root[data-theme="dark"]{
+  --bg:#0C111B; --bg-dot:#1A2232; --panel:#131A27; --ink:#E6EBF4; --muted:#97A2B6; --line:#253044;
+  --accent:#7AA5FF; --accent-soft:#1A2744; --good:#34D399; --warn:#FB923C; color-scheme:dark;
+  --bezel:#05070C; --bezel-edge:#30384B;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);background-image:radial-gradient(var(--bg-dot) 1px,transparent 1.2px);background-size:22px 22px;color:var(--ink);font-family:var(--font-ui);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shell{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ── 상단 바 ── */
+.topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:14px;max-width:1380px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto;min-width:0}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--accent);display:grid;place-items:center;flex:none}
+.brand-mark svg{width:20px;height:20px}
+.brand b{display:block;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.brand small{display:block;color:var(--muted);font-size:12px}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--panel);border:1px solid var(--line)}
+.seg button{padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--accent);color:var(--panel)}
+.ghost-btn{padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:600}
+
+/* ── 3단 보드 ── */
+.wrap{display:grid;grid-template-columns:250px minmax(0,1fr) 340px;gap:28px;align-items:start;max-width:1380px;margin:0 auto;padding-block:10px 40px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}
+.panel h2{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.nav-grp{margin:0 0 6px}
+.nav-grp > span{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin:14px 0 6px;letter-spacing:.02em}
+.nav-grp:first-of-type > span{margin-top:0}
+.nav-item{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;width:100%;text-align:left;padding:8px 8px;border-radius:9px;position:relative}
+.nav-item:hover{background:var(--accent-soft)}
+.nav-item[aria-current="true"]{background:var(--accent-soft)}
+.nav-item[aria-current="true"] .sid{background:var(--accent);color:var(--panel);border-color:var(--accent)}
+.sid{font-family:var(--font-mono);font-size:11.5px;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:2px 0;text-align:center;color:var(--muted);background:var(--panel)}
+.nav-item b{display:block;font-size:13.5px;font-weight:600;line-height:1.35}
+.nav-item small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+.qdots{display:flex;gap:4px;margin:6px 0 2px 52px}
+.qdot{width:22px;height:20px;border-radius:5px;border:1px solid var(--line);font-family:var(--font-mono);font-size:10.5px;color:var(--muted);display:grid;place-items:center;background:var(--panel)}
+.qdot.on{border-color:var(--accent);color:var(--accent)}
+.qdot.cur{background:var(--accent);color:var(--panel);border-color:var(--accent)}
+.presets{border-top:1px solid var(--line);margin-top:16px;padding-top:14px;display:grid;gap:6px}
+.preset{text-align:left;padding:9px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;line-height:1.4}
+.preset:hover{border-color:var(--accent)}
+.preset b{display:block;font-weight:600;font-size:13px}
+.preset small{color:var(--muted)}
+.strip{display:none}
+
+/* ── 무대 ── */
+.stage{display:flex;flex-direction:column;align-items:center;gap:14px;min-width:0}
+.stage-cap{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-align:center;flex-wrap:wrap;justify-content:center}
+.stage-cap .sid{padding:2px 7px}
+.device{position:relative;padding:12px;border-radius:60px;background:var(--bezel);box-shadow:0 0 0 2px var(--bezel-edge) inset,0 40px 70px -30px rgba(16,24,40,.45),0 8px 18px -8px rgba(16,24,40,.25)}
+.device::after{content:"";position:absolute;top:23px;left:50%;transform:translateX(-50%);width:118px;height:34px;border-radius:20px;background:var(--island);z-index:6;pointer-events:none}
+.device .screen{border-radius:48px}
+
+/* ── 스펙 패널 ── */
+.spec h3{font-size:16px;margin:2px 0 4px;letter-spacing:-.01em}
+.spec .lede{color:var(--muted);font-size:13px;margin:0 0 14px}
+.spec-sec{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.spec-sec > h4{margin:0 0 8px;font-size:11.5px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+.spec ul,.spec ol{margin:0;padding-left:18px;display:grid;gap:5px;font-size:13px}
+.spec li::marker{color:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:500}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.opt-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.opt-table td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.opt-table tr.sel td{color:var(--accent);font-weight:600}
+.opt-table td:first-child{font-family:var(--font-mono);width:20px;color:var(--muted)}
+.opt-table tr.sel td:first-child{color:var(--accent)}
+.opt-table td:last-child{text-align:right;white-space:nowrap;font-family:var(--font-mono)}
+.sbars{display:grid;gap:7px}
+.sbar{display:grid;grid-template-columns:88px 1fr 40px;align-items:center;gap:8px;font-size:12.5px}
+.sbar .tr{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.sbar .fl{display:block;height:100%;background:var(--muted);border-radius:4px;transition:width .25s}
+.sbar.top .fl{background:var(--accent)} .sbar.top{font-weight:600}
+.sbar.done .fl{background:var(--good)}
+.sbar .v{text-align:right;font-family:var(--font-mono);font-size:12px}
+.trace{counter-reset:t;list-style:none;padding:0!important}
+.trace li{counter-increment:t;display:grid;grid-template-columns:22px 1fr;gap:6px}
+.trace li::before{content:counter(t);font-family:var(--font-mono);font-size:11px;color:var(--panel);background:var(--accent);border-radius:5px;height:18px;display:grid;place-items:center;margin-top:1px}
+.codes{display:flex;flex-wrap:wrap;gap:4px}
+.codes span{font-family:var(--font-mono);font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.muted{color:var(--muted)}
+
+/* ── 전체 플로우 ── */
+.overview{max-width:none;padding-block:8px 48px}
+.ov-intro{max-width:1380px;margin:0 auto 18px;color:var(--muted);font-size:13.5px}
+.ov-scroll{overflow-x:auto;padding-bottom:12px}
+.ov-board{display:grid;gap:34px;width:max-content;margin:0 auto;padding:4px 4px 0}
+.lane{display:flex;align-items:flex-start}
+.lane-h{width:132px;flex:none;padding-top:150px;padding-right:12px}
+.lane-h b{display:block;font-size:15px}
+.lane-h small{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin-top:4px}
+.lane-h i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--accent);margin-right:6px;vertical-align:0}
+.lane.l-int .lane-h i{background:#7C5CFF}
+.lane.l-crs .lane-h i{background:#0E9F6E}
+.fr{width:195px;flex:none}
+.fr-box{display:block;width:195px;height:422px;overflow:hidden;border-radius:26px;border:1px solid var(--line);background:var(--a-bg);box-shadow:0 14px 30px -18px rgba(16,24,40,.35);position:relative;transition:transform .15s,box-shadow .15s}
+.fr-box:hover{transform:translateY(-2px);box-shadow:0 20px 34px -18px rgba(16,24,40,.45);border-color:var(--accent)}
+.fr-box .screen{transform:scale(.5);transform-origin:0 0;width:390px!important;height:844px!important;pointer-events:none}
+.fr-cap{margin-top:10px;display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:baseline}
+.fr-cap .sid{padding:1px 6px}
+.fr-cap b{font-size:13px}
+.fr-cap small{grid-column:1/-1;color:var(--muted);font-size:12px;line-height:1.4}
+.arr{width:46px;flex:none;align-self:flex-start;margin-top:200px;display:grid;place-items:center;color:var(--muted)}
+.arr svg{width:30px;height:12px}
+.loop-note{width:150px;flex:none;margin:150px 0 0 14px;padding:12px;border:1px dashed var(--line);border-radius:12px;font-size:12.5px;color:var(--muted);background:var(--panel)}
+.loop-note b{color:var(--ink);display:block;margin-bottom:2px}
+
+/* ── 반응형 ── */
+@media (max-width:1180px){
+  .wrap{grid-template-columns:minmax(0,1fr) 320px}
+  .flow-nav{display:none}
+  .strip{display:flex;grid-column:1/-1;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+  .strip button{flex:none;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:12.5px;white-space:nowrap}
+  .strip button[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .strip .sep{flex:none;width:1px;background:var(--line);margin:4px 4px}
+}
+@media (max-width:860px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:18px}
+  .panel{position:static;max-height:none}
+  .device{padding:0;background:none;box-shadow:none;border-radius:0;width:100%;max-width:430px}
+  .device::after{display:none}
+  .device .screen{width:100%;height:min(780px,calc(100svh - 32px));min-height:620px;border-radius:24px;border:1px solid var(--line)}
+  .topbar .brand small{display:none}
+}
+@media (max-width:400px){#live .orbit{transform:scale(.88);transform-origin:top center;margin-bottom:-38px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ════════ 앱 화면 (390 × 844) ════════ */
+.screen{width:390px;height:844px;position:relative;overflow:hidden;display:flex;flex-direction:column;background:var(--a-bg);color:var(--a-ink);font-family:var(--font-app);font-size:15px;line-height:1.5;letter-spacing:-.015em;text-align:left;isolation:isolate}
+.screen button{font-family:var(--font-app);letter-spacing:inherit}
+.sb{height:47px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:4px 28px 0 38px;font-size:16px;font-weight:600;letter-spacing:0;font-family:-apple-system,"SF Pro Text",var(--font-app)}
+.sb-i{display:flex;gap:6px;align-items:center}
+.sb-i svg{display:block}
+.ah{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 10px}
+.ib{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--a-ink)}
+.ib:hover{background:var(--a-fill)}
+.ib svg{width:24px;height:24px}
+.ht{font-size:17px;font-weight:700;flex:1}
+.ab{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px 20px 28px;scrollbar-width:none}
+.ab::-webkit-scrollbar{display:none}
+.af{flex:none;padding:10px 20px 26px;display:grid;gap:8px;background:var(--a-bg)}
+.cta{height:56px;border-radius:16px;background:var(--a-blue);color:var(--a-on);font-size:18px;font-weight:700;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.cta:hover{background:var(--a-blue-d)}
+.cta:disabled{background:var(--a-line);color:var(--a-faint);cursor:default}
+.cta small{font-size:14px;font-weight:600;opacity:.85}
+.cta.line{background:var(--a-bg);color:var(--a-blue);border:1.5px solid var(--a-blue-line)}
+.cta.line:hover{background:var(--a-blue-soft)}
+.txt-btn{height:40px;color:var(--a-sub);font-size:15px;font-weight:600}
+.t{font-size:25px;font-weight:800;line-height:1.36;margin:10px 0 8px;letter-spacing:-.03em}
+.st{color:var(--a-sub);font-size:15px;margin:0 0 22px}
+
+/* S0 */
+.s0{background:linear-gradient(180deg,#FFFFFF 0%,#FFFFFF 36%,var(--a-bg2) 100%)}
+.s0 .af{background:transparent}
+.s0 .ab{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:0}
+.pill{margin-top:44px;display:inline-block;padding:5px 14px;border-radius:999px;background:var(--a-blue-soft);color:var(--a-blue);font-size:13px;font-weight:700}
+.s0-h{margin:20px 0 0;font-size:28px;line-height:1.32;font-weight:800;letter-spacing:-.035em}
+.s0-h em{font-style:normal;color:var(--a-blue);font-size:31px}
+.s0-sub{margin:18px 0 0;color:var(--a-sub);font-size:15px;line-height:1.55}
+.orbit{position:relative;width:358px;height:316px;margin-top:20px;flex:none}
+.orbit .ring{position:absolute;left:39px;top:16px;width:280px;height:280px;border-radius:50%;border:1.5px solid #D7E3FC;background:radial-gradient(circle,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 70%)}
+.orbit img{position:absolute;left:83px;top:69px;width:196px;height:174px;animation:float 4s ease-in-out infinite}
+.oc{position:absolute;padding:6px 13px;border-radius:999px;border:1.5px solid var(--a-blue);background:var(--a-bg);color:var(--a-blue);font-size:13px;font-weight:700;box-shadow:0 4px 12px -6px var(--a-shadow);white-space:nowrap}
+.copy{margin:4px 0 0;text-align:center;color:var(--a-sub);font-size:13px}
+@keyframes float{50%{transform:translateY(-5px)}}
+
+/* S1 */
+.modes{display:grid;gap:12px}
+.mode{display:grid;grid-template-columns:52px 1fr 20px;gap:14px;align-items:center;text-align:left;padding:18px 16px;border-radius:18px;border:1.5px solid var(--a-line);background:var(--a-card);transition:border-color .15s,background .15s}
+.mode:hover,.mode.on{border-color:var(--a-blue);background:var(--a-blue-soft)}
+.mode .mi{width:52px;height:52px;border-radius:15px;background:var(--a-blue-soft);display:grid;place-items:center;color:var(--a-blue)}
+.mode.on .mi,.mode:hover .mi{background:var(--a-bg)}
+.mode .mi svg{width:28px;height:28px}
+.mode b{display:block;font-size:17px;font-weight:700}
+.mode small{display:block;color:var(--a-sub);font-size:13.5px;margin-top:2px;line-height:1.4}
+.mode .mm{display:flex;gap:5px;margin-top:8px}
+.mode .mm i{font-style:normal;font-size:12px;font-weight:600;color:var(--a-blue);background:var(--a-bg);border:1px solid var(--a-blue-line);border-radius:6px;padding:1px 7px}
+.mode .chev{color:var(--a-faint)}
+.hint{display:flex;gap:6px;align-items:flex-start;color:var(--a-sub);font-size:13.5px;margin:18px 2px 0}
+.hint svg{flex:none;margin-top:3px}
+
+/* S2 */
+.depts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dept{height:46px;border-radius:12px;border:1.5px solid var(--a-line);font-size:15px;font-weight:600;color:var(--a-ink);background:var(--a-card)}
+.dept:hover{border-color:var(--a-blue-line)}
+.dept.on{border-color:var(--a-blue);background:var(--a-blue-soft);color:var(--a-blue)}
+.dept.wide{grid-column:1/-1}
+.dnote{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--a-fill);font-size:13.5px;color:var(--a-sub)}
+.dnote b{color:var(--a-ink)}
+
+/* S3 */
+.prog{flex:1;height:6px;border-radius:3px;background:var(--a-line);overflow:hidden;margin:0 6px}
+.prog span{display:block;height:100%;background:var(--a-blue);border-radius:3px;transition:width .3s}
+.pc{font-size:14px;font-weight:700;color:var(--a-sub);min-width:34px;text-align:right;padding-right:8px;font-variant-numeric:tabular-nums}
+.eyebrow{display:inline-block;font-size:13px;font-weight:700;color:var(--a-blue);margin-top:18px}
+.qt{font-size:23px;font-weight:800;line-height:1.4;margin:8px 0 26px;letter-spacing:-.03em;white-space:pre-line}
+.opts{display:grid;gap:10px}
+.opt{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:center;text-align:left;padding:15px 16px;border-radius:16px;border:1.5px solid var(--a-line);background:var(--a-card);font-size:15.5px;font-weight:500;line-height:1.45;transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--a-blue-line)}
+.opt .ol{width:30px;height:30px;border-radius:9px;background:var(--a-fill);display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--a-sub)}
+.opt.on{border-color:var(--a-blue);background:var(--a-blue-soft);color:var(--a-blue-d);font-weight:600}
+.opt.on .ol{background:var(--a-blue);color:var(--a-on)}
+
+/* S4 */
+.lead{font-size:20px;font-weight:800;line-height:1.4;margin:6px 0 6px;letter-spacing:-.03em}
+.note{display:flex;gap:6px;align-items:flex-start;color:var(--a-sub);font-size:13px;margin:0 0 14px}
+.note svg{flex:none;margin-top:3px}
+.search{display:flex;align-items:center;gap:8px;height:46px;padding:0 14px;border-radius:12px;background:var(--a-fill);color:var(--a-faint);margin-bottom:6px}
+.search input{flex:1;min-width:0;border:0;background:none;font:inherit;font-family:var(--font-app);font-size:15px;color:var(--a-ink);outline:none}
+.search input::placeholder{color:var(--a-faint)}
+.grp{margin-top:18px}
+.grp h3{font-size:14px;font-weight:700;margin:0 0 8px;display:flex;align-items:baseline;gap:6px;color:var(--a-ink)}
+.grp h3 small{font-size:12.5px;color:var(--a-sub);font-weight:500}
+.slots{display:grid;gap:8px}
+.slot{border:1.5px solid var(--a-line);border-radius:14px;background:var(--a-card);overflow:hidden}
+.slot.on{border-color:var(--a-blue)}
+.crs{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;padding:11px 12px}
+.crs .cb{width:22px;height:22px;border-radius:7px;border:1.5px solid #CBD2DE;display:grid;place-items:center;color:transparent;background:var(--a-bg)}
+.crs.on .cb{background:var(--a-blue);border-color:var(--a-blue);color:var(--a-on)}
+.crs .cb svg{width:14px;height:14px}
+.crs b{display:block;font-size:15px;font-weight:700;line-height:1.35}
+.crs small{display:block;font-size:12.5px;color:var(--a-sub);font-variant-numeric:tabular-nums}
+.tg{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end;max-width:96px}
+.tg i{font-style:normal;font-size:11px;font-weight:700;color:var(--a-blue);background:var(--a-blue-soft);border-radius:5px;padding:1px 5px}
+.more{display:flex;align-items:center;gap:4px;width:100%;padding:8px 12px 9px 44px;font-size:12.5px;font-weight:600;color:var(--a-sub);border-top:1px dashed var(--a-line)}
+.more svg{transition:transform .15s}
+.more.open svg{transform:rotate(180deg)}
+.subs{display:grid;padding:0 0 6px}
+.subs .crs{padding:7px 12px 7px 24px;grid-template-columns:22px 1fr}
+.subs .crs b{font-size:14px;font-weight:600}
+.subs .crs .cb{width:20px;height:20px}
+.xh{display:flex;align-items:center;gap:6px;width:100%;font-size:14px;font-weight:700;padding:12px 14px;border-radius:12px;background:var(--a-fill)}
+.xh small{font-weight:600;color:var(--a-sub)}
+.xh svg{margin-left:auto;transition:transform .15s}
+.xh.open svg{transform:rotate(180deg)}
+.empty{padding:28px 10px;text-align:center;color:var(--a-sub);font-size:14px}
+.gnote{font-size:12.5px;color:var(--a-sub);margin:8px 2px 0}
+.hl{background:#FFF1B8;border-radius:3px}
+
+/* S5 */
+.s5 .ab{display:grid;place-items:center;text-align:center;background:linear-gradient(180deg,#FFFFFF,var(--a-bg2))}
+.load img{width:210px;height:186px;animation:bob 1.1s ease-in-out infinite;mix-blend-mode:multiply}
+.load p{font-size:21px;font-weight:800;line-height:1.4;margin:22px 0 14px;letter-spacing:-.03em}
+.load small{display:block;color:var(--a-sub);font-size:14px;margin-top:12px}
+.dots{display:inline-flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--a-blue);animation:blink 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bob{50%{transform:translateY(-10px)}}
+@keyframes blink{0%,100%{opacity:.25}40%{opacity:1}}
+
+/* S6 */
+.s6 .ab{background:var(--a-fill);padding:0 16px 24px}
+.hero{margin:0 -16px;padding:6px 24px 26px;text-align:center;background:linear-gradient(180deg,var(--a-bg) 0%,var(--a-bg2) 100%);border-bottom-left-radius:28px;border-bottom-right-radius:28px}
+.hero img{width:150px;height:133px;display:block;margin:0 auto;mix-blend-mode:multiply}
+.hero .eyebrow{margin-top:6px}
+.pn{font-size:30px;font-weight:800;margin:2px 0 8px;letter-spacing:-.04em;line-height:1.25}
+.mdpill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:var(--a-blue);color:var(--a-on);font-size:14px;font-weight:700}
+.mdpill .mp{font-weight:600;opacity:.85;font-variant-numeric:tabular-nums}
+.pl{margin:12px 0 10px;color:var(--a-sub);font-size:15px}
+.htags{display:flex;gap:6px;justify-content:center}
+.htags i{font-style:normal;font-size:13px;font-weight:600;color:var(--a-blue);background:var(--a-bg);border:1px solid var(--a-blue-line);border-radius:999px;padding:3px 10px}
+.next{margin:14px auto 0;display:inline-flex;align-items:center;gap:8px;padding:8px 12px 8px 10px;border-radius:12px;background:var(--a-bg);border:1.5px dashed var(--a-blue-line);font-size:14px;color:var(--a-sub)}
+.next b{color:var(--a-blue)}
+.next .nb{font-size:11.5px;font-weight:700;color:var(--a-on);background:var(--a-blue);border-radius:6px;padding:1px 6px}
+.card{margin-top:12px;padding:18px 16px;border-radius:20px;background:var(--a-card)}
+.card h3{margin:0 0 4px;font-size:17px;font-weight:800;letter-spacing:-.025em}
+.card .cs{margin:0 0 14px;color:var(--a-sub);font-size:13.5px}
+.card.good{background:var(--a-good-soft)}
+.card.good h3{color:var(--a-good)}
+.card.warn{background:var(--a-amber-soft)}
+.card.warn h3{color:var(--a-amber)}
+.card .mini{margin-top:10px;height:42px;font-size:15px}
+.rbars{display:grid;gap:9px}
+.rbar{display:grid;grid-template-columns:104px 1fr 36px;gap:10px;align-items:center;font-size:14px;color:var(--a-sub)}
+.rbar .tr{height:10px;border-radius:5px;background:var(--a-fill);overflow:hidden}
+.rbar .fl{display:block;height:100%;border-radius:5px;background:#BFD2FB}
+.rbar.top{color:var(--a-ink);font-weight:700}
+.rbar.top .fl{background:var(--a-blue)}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.pips{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}
+.pips i{height:10px;border-radius:3px;background:var(--a-fill)}
+.pips i.f{background:#BFD2FB}
+.rbar.top .pips i.f{background:var(--a-blue)}
+.rbar.done .pips i.f{background:var(--a-good)}
+.rbar.done .v{color:var(--a-good)}
+.ready{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:4px 0 6px}
+.ready i{height:8px;border-radius:3px;background:var(--a-fill)}
+.ready i.f{background:var(--a-blue)}
+.ready-l{display:flex;justify-content:space-between;font-size:12px;color:var(--a-faint);margin-bottom:16px}
+.ready-l b{color:var(--a-blue)}
+.sub-h{font-size:13px;font-weight:700;color:var(--a-sub);margin:0 0 8px}
+.road{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.road li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--a-fill)}
+.road .rk{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:13px;font-weight:700;background:var(--a-bg);color:var(--a-sub)}
+.road li.done{background:var(--a-blue-soft)}
+.road li.done .rk{background:var(--a-blue);color:var(--a-on)}
+.road b{display:block;font-size:14.5px;font-weight:700;line-height:1.35}
+.road small{display:block;font-size:12px;color:var(--a-sub);font-variant-numeric:tabular-nums}
+.bd{font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 7px;white-space:nowrap}
+.bd.open{background:var(--a-blue);color:var(--a-on)}
+.bd.in{background:var(--a-bg);color:var(--a-sub);border:1px solid var(--a-line)}
+.bd.x{background:var(--a-amber-soft);color:var(--a-amber)}
+.bd.ok{background:var(--a-good-soft);color:var(--a-good)}
+.pair{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--a-blue-soft);margin-bottom:10px}
+.pair .pk{flex:none;white-space:nowrap;font-size:26px;font-weight:800;color:var(--a-blue);font-variant-numeric:tabular-nums;line-height:1}
+.pair .pk small{font-size:14px;font-weight:700}
+.pair p{margin:0;font-size:14px;line-height:1.45}
+.fine-n{font-size:12.5px;color:var(--a-sub);margin:10px 2px 0}
+.lk{padding:14px;border-radius:14px;background:var(--a-fill)}
+.lk + .lk{margin-top:8px}
+.lk-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.lk-h b{font-size:15.5px}
+.reqs{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:13.5px}
+.reqs li{display:grid;grid-template-columns:20px 1fr;gap:6px;align-items:start}
+.reqs .ck{width:18px;height:18px;border-radius:6px;border:1.5px solid #CBD2DE;display:grid;place-items:center;margin-top:1px;background:var(--a-bg)}
+.reqs .ck.f{background:var(--a-good);border-color:var(--a-good);color:var(--a-on)}
+.reqs .ck svg{width:12px;height:12px}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.chips span{white-space:nowrap;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--a-bg);border:1px solid var(--a-line);color:var(--a-ink)}
+.chips span.o{border-color:var(--a-blue-line);color:var(--a-blue)}
+.chips span.t{background:var(--a-good-soft);border-color:transparent;color:var(--a-good);font-weight:600}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:26px 1fr;gap:10px}
+.steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--a-blue-soft);color:var(--a-blue);font-weight:800;font-size:13px;display:grid;place-items:center}
+.steps b{display:block;font-size:14.5px}
+.path{display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-top:4px;font-size:12.5px;color:var(--a-sub)}
+.path span{background:var(--a-fill);border-radius:6px;padding:1px 7px}
+.path span.btn{background:var(--a-blue);color:var(--a-on);font-weight:700}
+.steps .must{color:var(--a-amber);font-weight:700;font-size:12.5px;margin-top:3px;display:block}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cmp div{padding:12px;border-radius:14px;background:var(--a-fill)}
+.cmp div.cur{background:var(--a-blue-soft)}
+.cmp small{display:block;font-size:12px;color:var(--a-sub)}
+.cmp b{font-size:15px}
+.fine{font-size:12.5px;color:var(--a-sub);text-align:center;margin:18px 6px 4px;line-height:1.6}
+.end{margin-top:14px;display:grid;gap:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sec{height:48px;border-radius:14px;background:var(--a-card);border:1.5px solid var(--a-line);font-size:15px;font-weight:700;color:var(--a-ink)}
+.sec:hover{border-color:var(--a-blue-line)}
+.toast{position:absolute;left:20px;right:20px;bottom:96px;z-index:9;padding:12px 16px;border-radius:14px;background:rgba(20,23,31,.92);color:#FFFFFF;font-size:14px;line-height:1.45;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+</style>
+
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><path d="M5 18V12M10 18V7M15 18v-8M20 18V5"/></svg></span>
+      <div><b>MD 유형 테스트 프로토타입</b><small>빅데이터혁신융합대학 설명회용 · 2026-2학기 개설 기준</small></div>
+    </div>
+    <div class="seg" role="tablist" aria-label="보기 전환">
+      <button role="tab" id="tab-proto" data-view="proto" aria-selected="true">프로토타입</button>
+      <button role="tab" id="tab-flow" data-view="flow" aria-selected="false">전체 플로우</button>
+    </div>
+    <button class="ghost-btn" id="reset-all" data-ui="restart">처음부터</button>
+  </header>
+
+  <main class="wrap" id="view-proto">
+    <nav class="panel flow-nav" id="nav" aria-label="화면 흐름"></nav>
+    <div class="strip" id="strip" aria-label="화면 바로가기"></div>
+    <section class="stage">
+      <div class="device"><div class="screen" id="live"></div></div>
+      <p class="stage-cap" id="cap"></p>
+    </section>
+    <aside class="panel spec" id="spec" aria-live="polite"></aside>
+  </main>
+
+  <section class="overview" id="view-flow" hidden>
+    <p class="ov-intro">모든 화면을 같은 코드로 축소해 나열했어요. 화면을 누르면 그 상태 그대로 프로토타입에서 열립니다.</p>
+    <div class="ov-scroll"><div class="ov-board" id="board"></div></div>
+  </section>
+</div>
+
+<script>
+/* MD 유형 테스트 — 데이터와 판정 로직 (화면과 분리된 순수 함수) */
+const MDL = (() => {
+  const TERM = '2026-2';
+
+  // ── 표준 MD 6종 ───────────────────────────────────────────
+  const TYPES = ['초급', '관리', '분석', '머신러닝', '마이닝', '고급'];
+  const MD = {
+    초급: { full: '빅데이터초급', persona: '데이터 새싹', line: '빅데이터를 이해하고 활용할 기초 체력을 기릅니다', tags: ['첫걸음', '기초체력'], rep: ['intro', 'prog', 'stat', 'ds'] },
+    관리: { full: '빅데이터관리', persona: '데이터 설계자', line: '데이터를 저장·관리하는 언어와 알고리즘을 다룹니다', tags: ['DB설계', '데이터파이프라인'], rep: ['capstone', 'ethics', 'dmining', 'db'] },
+    분석: { full: '빅데이터분석', persona: '인사이트 탐정', line: '통계 기법과 계산으로 데이터를 해석합니다', tags: ['통계', '해석'], rep: ['statcomp', 'reg', 'viz', 'dl'] },
+    머신러닝: { full: '머신러닝', persona: '예측 모델러', line: '딥러닝·AI로 예측하는 시스템을 만듭니다', tags: ['예측', '모델링'], rep: ['ml', 'dl', 'statcomp', 'reg'] },
+    마이닝: { full: '빅데이터마이닝', persona: '비정형 데이터 탐험가', line: '텍스트·자연어·이미지를 모아 구조화합니다', tags: ['텍스트', '이미지'], rep: ['dl', 'nlp', 'pattern', 'advml'] },
+    고급: { full: '빅데이터고급', persona: '기술 개척자', line: '빅데이터 분석·활용의 고급 기술을 익힙니다', tags: ['LLM', '대규모처리'], rep: ['nlp', 'advml', 'pattern', 'multi'] },
+  };
+
+  // ── 교과번호 → 과목명·개설 학과 (PDF p.21, p.30–31) ─────────
+  const C = {
+    '02098': ['빅데이터개론', '교양교육부'], '01914': ['빅데이터개론2', '교양교육부'],
+    '92071': ['빅데이터자료구조', '융합전공학부'], '92005': ['기초프로그래밍', '융합전공학부'],
+    '56491': ['전산생물학및실습', '생명과학과'], '11072': ['도시조사방법론', '도시행정학과'],
+    '92072': ['알고리즘', '융합전공학부'], '92044': ['빅데이터분석을위한수학', '융합전공학부'],
+    '47002': ['통계학개론및실습', '통계학과'], '28012': ['경제통계학', '경제학부'], '27003': ['경영통계학', '경영학부'],
+    '71042': ['확률과통계', '컴퓨터과학부'], '42104': ['실험통계학및실습', '환경원예학과'], '84147': ['사회통계', '도시사회학과'],
+    '41510': ['교통통계', '교통공학과'], '46056': ['교통통계응용', '교통공학과'], '33122': ['공학통계', '환경공학부'],
+    '92070': ['기초통계학', '융합전공학부'], '44110': ['응용수리통계학', '수학과'], '41815': ['도시계량분석', '도시공학과'],
+    '92073': ['빅데이터종합설계', '융합전공학부'], '64223': ['빅데이터윤리', '철학과'], '20016': ['데이터마이닝', '인공지능학과'],
+    '47793': ['데이터베이스', '통계학과'], '85889': ['데이터베이스', '공간정보공학과'], '29021': ['정보관리와데이터애널리틱스', '경영학부'],
+    '47770': ['통계계산', '통계학과'], '47772': ['회귀분석Ⅰ', '통계학과'], '47787': ['데이터시각화', '통계학과'], '92003': ['탐색적데이터분석', '융합전공학부'],
+    '47768': ['딥러닝', '통계학과'], '47771': ['기계학습및실습', '통계학과'], '47818': ['고급기계학습프로젝트', '통계학과'], '47783': ['빅데이터와통계읽기', '통계학과'],
+    '47774': ['다변량통계학', '통계학과'], '47788': ['언어처리및학습', '통계학과'], '20021': ['패턴인식', '인공지능학과'], '20047': ['컴퓨터비전개론', '인공지능학과'],
+    '47800': ['데이터엔지니어링기초', '통계학과'], '47760': ['고급통계프로그래밍', '통계학과'],
+    // 연계융합 지정 과목
+    '41781': ['확률통계론', '건축학부'], '46007': ['건설산업과ICT', '건축학부'],
+    '28015': ['계량경제학', '경제학부'], '28137': ['경제분석과예측', '경제학부'], '28146': ['고급계량연습', '경제학부'],
+    '28017': ['노동경제학', '경제학부'], '28160': ['노동경제이슈', '경제학부'],
+    '27202': ['경영과학', '경영학부'], '29010': ['마케팅애널리틱스', '경영학부'], '27956': ['빅데이터전략및분석', '경영학부'],
+    '51249': ['빅데이터영어학', '영어영문학과'], '51243': ['디지털셰익스피어', '영어영문학과'], '51252': ['인공지능과영어논리', '영어영문학과'], '51248': ['영어와컴퓨터', '영어영문학과'],
+    '44112': ['바이오수학', '수학과'], '44095': ['수학과컴퓨터', '수학과'], '44111': ['금융수학', '수학과'],
+    '56488': ['생물정보학및실습', '생명과학과'], '56423': ['시스템생물학', '생명과학과'],
+    '48043': ['화학과컴퓨터', '융합응용화학과'], '48018': ['계산화학', '융합응용화학과'],
+    '11133': ['공공빅데이터프로그래밍입문', '도시행정학과'], '11134': ['공공빅데이터사례연구', '도시행정학과'], '11142': ['공공빅데이터프로그래밍응용', '도시행정학과'],
+    '84246': ['인구와사회', '도시사회학과'], '84247': ['노동과사회', '도시사회학과'], '84229': ['캡스톤디자인:양적접근', '도시사회학과'],
+    '46041': ['도시과학개론', '도시공학과'], '46014': ['도시데이터와공간분석', '도시공학과'], '46010': ['도시공간구조분석및모델링', '도시공학과'],
+    '41518': ['교통체계분석', '교통공학과'], '46065': ['AI모빌리티', '교통공학과'], '41832': ['화물교통및실습', '교통공학과'], '46114': ['교통AI빅데이터분석', '교통공학과'], '41948': ['교통빅데이터분석', '교통공학과'],
+    '33168': ['환경빅데이터프로그래밍', '환경공학부'], '33094': ['컴퓨터프로그램', '환경공학부'], '33170': ['환경빅데이터선형대수학', '환경공학부'], '33169': ['환경빅데이터분석심화', '환경공학부'],
+    '33184': ['화학물질데이터베이스', '환경공학부'], '33142': ['환경위해성평가', '환경공학부'], '33135': ['환경독성학및실험', '환경공학부'],
+    '85914': ['공간분석', '공간정보공학과'], '85072': ['공간분석론', '공간정보공학과'], '85910': ['공간빅데이터마이닝', '공간정보공학과'], '85903': ['공간정보딥러닝', '공간정보공학과'],
+    '62124': ['스포츠과학개론', '스포츠과학과'], '63065': ['스포츠데이터분석과인공지능', '스포츠과학과'], '63050': ['스포츠경기분석', '스포츠과학과'],
+  };
+
+  // 2026-2학기 개설 교과번호 (PDF p.28)
+  const OPEN = new Set(('02098 92071 92005 56491 92072 47002 28012 27003 42104 92070 44110 41815 64223 85889 47760 20021 47774 92044 47771 ' +
+    '84246 84229 28137 28015 27202 27956 11134 41518 41832 46114 33094 48018 51252 44095 33142 33135 63065 46041 46014 85910 85903 41781').split(' '));
+
+  // 연계융합 MD의 '빅데이터전공 교과목 1개' 후보 (PDF p.21)
+  const BIGMAJOR = new Set(('92071 92005 56491 11072 92072 47002 28012 27003 71042 42104 84147 41510 46056 33122 92070 44110 41815 ' +
+    '92073 64223 47793 85889 29021 20016 47787 92003 47768 47770 47760 47800 47788 20021 20047 47783 47818 47774 92044 47772 47771').split(' '));
+
+  // ── 슬롯: 본 과목 + 대체 과목 + 구 교과번호 = 1개 ──────────
+  const SLOTS = [
+    { id: 'intro', name: '빅데이터개론', main: '02098', old: ['01914'], md: ['초급'], group: 'basic' },
+    { id: 'prog', name: '기초프로그래밍', main: '92005', subs: ['56491', '11072'], md: ['초급'], group: 'basic' },
+    { id: 'stat', name: '통계학개론및실습', main: '47002', subs: ['28012', '27003', '71042', '42104', '84147', '41510', '46056', '33122', '92070', '44110', '41815'], md: ['초급'], group: 'basic', subsOpen: true },
+    { id: 'ds', name: '빅데이터자료구조', main: '92071', md: ['초급'], group: 'basic' },
+    { id: 'algo', name: '알고리즘', main: '92072', md: ['초급'], group: 'basic' },
+    { id: 'math', name: '빅데이터분석을위한수학', main: '92044', md: ['초급'], group: 'basic' },
+    { id: 'db', name: '데이터베이스', main: '47793', subs: ['85889', '29021'], md: ['관리', '분석'], group: 'mid' },
+    { id: 'dmining', name: '데이터마이닝', main: '20016', md: ['관리', '분석', '마이닝'], group: 'mid' },
+    { id: 'ethics', name: '빅데이터윤리', main: '64223', md: ['관리', '분석', '머신러닝'], group: 'mid' },
+    { id: 'capstone', name: '빅데이터종합설계', main: '92073', md: ['관리', '머신러닝'], group: 'mid' },
+    { id: 'statcomp', name: '통계계산', main: '47770', md: ['분석', '머신러닝'], group: 'mid' },
+    { id: 'reg', name: '회귀분석Ⅰ', main: '47772', md: ['분석', '머신러닝'], group: 'mid' },
+    { id: 'viz', name: '데이터시각화', main: '47787', subs: ['92003'], md: ['분석'], group: 'mid' },
+    { id: 'ml', name: '기계학습및실습', main: '47771', md: ['머신러닝'], group: 'ai' },
+    { id: 'dl', name: '딥러닝', main: '47768', md: ['분석', '머신러닝', '마이닝'], group: 'ai' },
+    { id: 'multi', name: '다변량통계학', main: '47774', md: ['머신러닝', '고급'], group: 'ai' },
+    { id: 'pattern', name: '패턴인식', main: '20021', subs: ['20047'], md: ['마이닝', '고급'], group: 'ai' },
+    { id: 'nlp', name: '언어처리및학습', main: '47788', md: ['마이닝', '고급'], group: 'ai' },
+    { id: 'advml', name: '고급기계학습프로젝트', main: '47818', old: ['47783'], md: ['머신러닝', '마이닝', '고급'], group: 'ai' },
+    { id: 'de', name: '데이터엔지니어링기초', main: '47800', subs: ['47760'], md: ['고급'], group: 'ai' },
+    // 교내 미개설 → 타 대학 학점교류
+    { id: 'x-ai', name: '인공지능입문', md: ['초급', '관리'], group: 'x', exchange: true },
+    { id: 'x-server', name: '서버프로그래밍', md: ['관리'], group: 'x', exchange: true },
+    { id: 'x-storage', name: '빅데이터스토리지시스템', md: ['관리'], group: 'x', exchange: true },
+    { id: 'x-text', name: '텍스트마이닝', md: ['분석', '마이닝'], group: 'x', exchange: true },
+    { id: 'x-onto', name: '온톨로지및지식그래프', md: ['고급'], group: 'x', exchange: true },
+    { id: 'x-cloud', name: '클라우드시스템', md: ['고급'], group: 'x', exchange: true },
+  ];
+  SLOTS.forEach((s, i) => {
+    s.i = i;
+    s.subs = s.subs || []; s.old = s.old || [];
+    s.codes = s.exchange ? ['x:' + s.id] : [s.main, ...s.subs, ...s.old];
+    s.openCodes = s.codes.filter(c => OPEN.has(c));
+    s.tier = s.openCodes.length ? 0 : s.exchange ? 2 : 1; // ① 이번 학기 개설 ② 교내 ③ 학점교류
+  });
+  const SLOT = Object.fromEntries(SLOTS.map(s => [s.id, s]));
+  const CODE2SLOT = {};
+  SLOTS.forEach(s => s.codes.forEach(c => { CODE2SLOT[c] = s.id; }));
+  const GROUPS = [
+    { id: 'basic', name: '기초 · 통계·프로그래밍' },
+    { id: 'mid', name: '데이터 관리·분석' },
+    { id: 'ai', name: 'AI · 고급' },
+  ];
+
+  // ── 연계융합 MD 16종 (학과 → MD) ─────────────────────────
+  const LINKED = {
+    건축학부: [{ md: '건축데이터공학', courses: ['41781', '46007'] }],
+    경제학부: [{ md: '빅데이터경제분석', courses: ['28015', '28137', '28146'] }, { md: '빅데이터인구경제학', courses: ['28017', '28160'] }],
+    경영학부: [{ md: '비즈니스 애널리틱스', courses: ['27202', '29010', '27956'] }],
+    영어영문학과: [{ md: '빅데이터영어영문학', courses: ['51249', '51243', '51252'], old: { '51248': '51252' } }],
+    수학과: [{ md: '수학빅데이터', courses: ['44112', '44095', '44111'] }],
+    생명과학과: [{ md: '바이오빅데이터', courses: ['56488', '56423'] }],
+    융합응용화학과: [{ md: '데이터화학', courses: ['48043', '48018'] }],
+    도시행정학과: [{ md: '공공빅데이터', courses: ['11133', '11134', '11142'] }],
+    도시사회학과: [{ md: '데이터사회학', courses: ['84246', '84247', '84229'] }],
+    도시공학과: [{ md: '도시빅데이터', courses: ['46041', '46014', '46010'] }],
+    교통공학과: [{ md: '교통빅데이터', courses: ['41518', '46065', '41832', '46114'], old: { '41948': '46114' } }],
+    환경공학부: [{ md: '환경빅데이터', courses: ['33168', '33094', '33170', '33169'] }, { md: '환경위해성빅데이터', courses: ['33184', '33142', '33135'] }],
+    공간정보공학과: [{ md: '공간빅데이터', courses: ['85914', '85910', '85903'], old: { '85072': '85914' } }],
+    스포츠과학과: [{ md: '스포츠빅데이터', courses: ['62124', '63065'], old: { '63050': '63065' } }],
+  };
+  const DEPTS = Object.keys(LINKED);
+
+  // ── 흥미 기반 질문 (Q1–Q2 준비도, Q3–Q8 관심 방향) ─────────
+  const QS = [
+    { axis: '준비도', q: '지금 나의 데이터·코딩 경험은?', opts: ['아직 거의 없어요', '교양이나 기초 수업에서 조금 해봤어요', '파이썬·R로 직접 데이터를 다뤄봤어요', '모델을 학습시키거나 데이터 프로젝트를 해봤어요'] },
+    { axis: '준비도', q: '수학·통계는 나에게?', opts: ['아직 낯설어요, 기초부터 배우고 싶어요', '평균·분산 같은 기초 통계는 괜찮아요', '확률·회귀 같은 개념도 익숙해요', '선형대수·다변량까지 깊게 파고 싶어요'] },
+    { axis: '관심 방향', q: '축제에서 우리 과 부스를 맡았다.\n데이터로 뭘 해볼까?', opts: ['어떤 메뉴·시간대가 매출을 올렸는지 분석', '내일 방문자 수를 예측하는 모델 만들기', 'SNS 후기와 사진으로 사람들 반응 살펴보기', '주문·재고 데이터를 한곳에 모아 관리하기'],
+      add: [{ 분석: 2 }, { 머신러닝: 2 }, { 마이닝: 2 }, { 관리: 2 }] },
+    { axis: '관심 방향', q: '가장 끌리는 데이터는?', opts: ['숫자가 빼곡한 표', '리뷰·대화 같은 글', '사진·영상', '끝없이 쌓이는 로그·센서 기록'],
+      add: [{ 분석: 1, 머신러닝: 1 }, { 마이닝: 2, 고급: 1 }, { 마이닝: 2, 고급: 1 }, { 관리: 2, 고급: 1 }] },
+    { axis: '관심 방향', q: '팀 프로젝트에서 맡고 싶은 역할은?', opts: ['데이터 구조를 설계하고 DB 세팅하기', '결과를 그래프로 보여주고 해석하기', '모델 정확도 끌어올리기', '최신 기술(LLM·클라우드) 붙여보기'],
+      add: [{ 관리: 2 }, { 분석: 2 }, { 머신러닝: 2 }, { 고급: 2 }] },
+    { axis: '관심 방향', q: '가장 클릭하고 싶은 기사 제목은?', opts: ['“집값을 움직인 진짜 요인, 데이터로 밝혔다”', '“AI가 다음 달 수요를 맞혔다”', '“챗봇은 어떻게 문장을 이해할까”', '“하루 수억 건을 처리하는 시스템의 비밀”'],
+      add: [{ 분석: 2 }, { 머신러닝: 2 }, { 마이닝: 2 }, { 고급: 2, 관리: 1 }] },
+    { axis: '관심 방향', q: '문제를 풀 때 나는?', opts: ['전체 구조와 설계도부터 그린다', '숫자 뒤에 숨은 원인을 끝까지 따진다', '일단 만들어 돌려보고 고쳐 나간다', '원리를 수식 수준까지 이해해야 직성이 풀린다'],
+      add: [{ 관리: 2 }, { 분석: 1, 머신러닝: 1 }, { 머신러닝: 1, 마이닝: 1 }, { 고급: 2 }] },
+    { axis: '관심 방향', q: '5년 뒤 내 모습에 가장 가까운 것은?', opts: ['데이터 분석가·리서처', 'AI·머신러닝 엔지니어', '자연어·컴퓨터비전 AI 개발자', '데이터 엔지니어'],
+      add: [{ 분석: 2 }, { 머신러닝: 2 }, { 마이닝: 2, 고급: 1 }, { 관리: 2, 고급: 1 }] },
+  ];
+  const INTEREST = ['관리', '분석', '머신러닝', '마이닝', '고급'];
+  const CAREER = ['분석', '머신러닝', '마이닝', '관리']; // Q8 A–D
+  const ROLE = ['관리', '분석', '머신러닝', '고급'];     // Q5 A–D
+  const ORDER = ['머신러닝', '분석', '마이닝', '고급', '관리', '초급']; // 교내 개설 과목이 많은 순
+  const L = i => 'ABCD'[i];
+  // 조사: 마지막 글자 받침 유무로 고름 (예: J('관리','은','는') → '관리는')
+  const J = (w, withB, noB) => { const c = w.charCodeAt(w.length - 1); return w + (c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? withB : noB); };
+
+  function interestScores(ans) {
+    const s = Object.fromEntries(INTEREST.map(t => [t, 0]));
+    for (let q = 2; q < 8; q++) {
+      if (ans[q] == null) continue;
+      const add = QS[q].add[ans[q]];
+      for (const k in add) s[k] += add[k];
+    }
+    return s;
+  }
+  function readiness(ans) { return (ans[0] ?? 0) + (ans[1] ?? 0); }
+  function stageOf(r) { return r <= 1 ? '입문' : r <= 4 ? '성장' : '심화'; }
+
+  function interestResult(ans) {
+    const ready = readiness(ans);
+    const s = interestScores(ans);
+    const trace = [];
+    trace.push(`준비도 = Q1 ${L(ans[0])}(${ans[0]}) + Q2 ${L(ans[1])}(${ans[1]}) = ${ready} → ${stageOf(ready)} 단계`);
+    if (ready >= 5) { s.고급 += 2; trace.push('심화 단계라서 고급에 +2'); }
+    const best = Math.max(...INTEREST.map(t => s[t]));
+    const top = ORDER.filter(t => INTEREST.includes(t) && s[t] === best);
+    let pick = top[0], how = 'single';
+    if (top.length > 1) {
+      const car = CAREER[ans[7]], role = ROLE[ans[4]];
+      if (top.includes(car)) { pick = car; how = 'Q8'; trace.push(`관심 1위 동점(${top.join('·')} ${best}점) → Q8 ${L(ans[7])}가 가리키는 ${car}`); }
+      else if (top.includes(role)) { pick = role; how = 'Q5'; trace.push(`관심 1위 동점(${top.join('·')} ${best}점), Q8은 해당 없음 → Q5 ${L(ans[4])}가 가리키는 ${role}`); }
+      else { how = 'order'; trace.push(`관심 1위 동점(${top.join('·')} ${best}점) → 고정 순서로 ${pick}`); }
+    } else trace.push(`관심 1위: ${pick} ${best}점`);
+    const main = ready <= 1 ? '초급' : pick;
+    if (ready <= 1) trace.push(`입문 단계 → 주 결과는 빅데이터초급, ${J(pick, '은', '는')} 다음 목표`);
+    return { mode: 'interest', main, next: ready <= 1 ? pick : null, top: pick, ready, stage: stageOf(ready), scores: s, best, tie: top.length > 1 ? top : null, how, trace };
+  }
+
+  // ── 과목 기반 ─────────────────────────────────────────────
+  function takenSlots(checked) {
+    const t = new Set();
+    checked.forEach(c => { if (CODE2SLOT[c]) t.add(CODE2SLOT[c]); });
+    return t;
+  }
+  const slotsOf = md => SLOTS.filter(s => s.md.includes(md));
+  const count = (md, taken) => slotsOf(md).filter(s => taken.has(s.id)).length;
+  const recSort = (a, b) => a.tier - b.tier || b.md.length - a.md.length || a.i - b.i;
+
+  function remainingFor(md, taken) {
+    const need = Math.max(0, 4 - count(md, taken));
+    return slotsOf(md).filter(s => !taken.has(s.id)).sort(recSort).slice(0, need);
+  }
+
+  function* combos(arr, k, start = 0, acc = []) {
+    if (acc.length === k) { yield acc; return; }
+    for (let i = start; i <= arr.length - (k - acc.length); i++) yield* combos(arr, k, i + 1, [...acc, arr[i]]);
+  }
+  // 두 MD를 모두 4/4로 만드는 최소 추가 과목(교내 개설 슬롯만)
+  function jointNeed(a, b, taken) {
+    const needA = Math.max(0, 4 - count(a, taken)), needB = Math.max(0, 4 - count(b, taken));
+    const cand = SLOTS.filter(s => !s.exchange && !taken.has(s.id) && (s.md.includes(a) || s.md.includes(b))).sort(recSort);
+    for (let k = Math.max(needA, needB); k <= cand.length; k++) {
+      let best = null, bestScore = -1;
+      for (const c of combos(cand, k)) {
+        if (c.filter(s => s.md.includes(a)).length >= needA && c.filter(s => s.md.includes(b)).length >= needB) {
+          const score = c.filter(s => s.tier === 0).length * 10 + c.reduce((n, s) => n + s.md.length, 0);
+          if (score > bestScore) { best = c; bestScore = score; }
+        }
+      }
+      if (best) return { k, needA, needB, slots: best.slice().sort(recSort) };
+    }
+    return null;
+  }
+  function bestPartner(main, taken, exclude = []) {
+    let best = null;
+    for (const p of ORDER) {
+      if (p === main || exclude.includes(p) || p === '초급') continue;
+      const j = jointNeed(main, p, taken);
+      if (j && (!best || j.k < best.k)) best = { md: p, ...j };
+    }
+    return best;
+  }
+
+  function linkedProgress(dept, checked) {
+    if (!LINKED[dept]) return [];
+    const req = checked.has('02098') || checked.has('01914');
+    const major = [...checked].filter(c => BIGMAJOR.has(c));
+    return LINKED[dept].map(l => {
+      const designated = l.courses.filter(c => checked.has(c) || Object.entries(l.old || {}).some(([o, n]) => n === c && checked.has(o)));
+      const n = (req ? 1 : 0) + Math.min(designated.length, 2) + (major.length ? 1 : 0);
+      return { ...l, req, designated, major: major[0] || null, n };
+    });
+  }
+
+  function courseResult(checked, dept) {
+    const taken = takenSlots(checked);
+    const prog = Object.fromEntries(TYPES.map(t => [t, Math.min(count(t, taken), 4)]));
+    const openLeft = t => slotsOf(t).filter(s => !taken.has(s.id) && s.tier === 0).length;
+    const ranked = TYPES.slice().sort((a, b) => prog[b] - prog[a] || openLeft(b) - openLeft(a) || ORDER.indexOf(a) - ORDER.indexOf(b));
+    const main = ranked[0];
+    const tie = TYPES.filter(t => prog[t] === prog[main]);
+    const done = TYPES.filter(t => prog[t] === 4);
+    const trace = [];
+    trace.push('충족 슬롯 ' + TYPES.map(t => `${t} ${prog[t]}`).join(' · '));
+    if (tie.length > 1) {
+      trace.push(`진행률 1위 동점(${tie.join('·')} ${prog[main]}/4) → 남은 슬롯 중 ${TERM} 개설 수 ` + tie.map(t => `${t} ${openLeft(t)}`).join(' · ') + ` → ${main}`);
+    } else trace.push(`진행률 1위: ${main} ${prog[main]}/4`);
+    const recs = remainingFor(main, taken);
+    if (recs.length) trace.push('남은 과목 추천: ' + recs.map(s => s.name + (s.tier === 0 ? ` (${TERM} 개설)` : s.tier === 2 ? ' (학점교류)' : ' (교내)')).join(', '));
+    const partner = bestPartner(main, taken, done);
+    if (partner) trace.push(`함께 따기: ${partner.md} → 지금부터 ${partner.k}과목이면 둘 다 4/4 (${main}만은 ${partner.needA}과목)`);
+    const linked = linkedProgress(dept, checked);
+    linked.forEach(l => trace.push(`연계융합 ${l.md}: 개론 ${l.req ? '✓' : '✗'} · 지정 ${Math.min(l.designated.length, 2)}/2 · 빅데이터전공 ${l.major ? '✓' : '✗'} → ${l.n}/4`));
+    return { mode: 'course', main, prog, ranked, tie: tie.length > 1 ? tie : null, done, taken, recs, partner, linked, weak: prog[main] <= 1, trace };
+  }
+
+  // 흥미 결과의 '함께 따기'는 대표 4과목을 들었다고 가정해 계산
+  function interestPartner(main) {
+    if (main === '초급') return null;
+    const plan = new Set(MD[main].rep);
+    return bestPartner(main, plan);
+  }
+
+  return { TERM, TYPES, MD, C, OPEN, BIGMAJOR, SLOTS, SLOT, CODE2SLOT, GROUPS, LINKED, DEPTS, QS, INTEREST, ORDER, CAREER, ROLE,
+    interestScores, readiness, stageOf, interestResult, takenSlots, count, remainingFor, jointNeed, bestPartner, interestPartner, linkedProgress, courseResult, L, J };
+})();
+if (typeof module !== 'undefined') module.exports = MDL;
+
+</script>
+<script>
+(() => {
+const M = MDL;
+const MASCOT = "data:image/webp;base64,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";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ICON = {
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  check: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>',
+  chev: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>',
+  right: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5l5 5-5 5"/></svg>',
+  search: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="M14 14l3.5 3.5"/></svg>',
+  info: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.2" stroke-linecap="round"/></svg>',
+  spark: '<svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M14 3.5l2.6 6.4 6.9.5-5.3 4.4 1.7 6.7L14 17.8l-5.9 3.7 1.7-6.7-5.3-4.4 6.9-.5z"/></svg>',
+  list: '<svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="20" height="20" rx="5"/><path d="M8.5 10.5l1.8 1.8 3.2-3.6M8.5 17.5l1.8 1.8 3.2-3.6M16.5 11h3.5M16.5 18h3.5"/></svg>',
+  arrow: '<svg viewBox="0 0 30 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h27M23 1.5L28 6l-5 4.5"/></svg>',
+};
+const SB = '<div class="sb"><span>9:41</span><span class="sb-i" aria-hidden="true">' +
+  '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>' +
+  '<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.4 0 4.6.9 6.2 2.5l1.2-1.3C13.4 1.4 10.8.4 8 .4S2.6 1.4.6 3.4l1.2 1.3C3.4 3.1 5.6 2.2 8 2.2zm0 3.6c1.4 0 2.7.5 3.6 1.4l1.3-1.3C11.6 4.6 9.9 4 8 4s-3.6.6-4.9 1.9l1.3 1.3c.9-.9 2.2-1.4 3.6-1.4zm0 3.5c-.6 0-1.2.2-1.6.6L8 11.6l1.6-1.7c-.4-.4-1-.6-1.6-.6z"/></svg>' +
+  '<svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2" fill="currentColor"/><path d="M25 4.5v4c.8-.3 1.5-1 1.5-2s-.7-1.7-1.5-2z" fill="currentColor" opacity=".45"/></svg>' +
+  '</span></div>';
+
+// ── 상태 ──────────────────────────────────────────────
+const fresh = () => ({ screen: 'S0', mode: null, dept: undefined, q: 0, answers: Array(8).fill(null), checked: new Set(), search: '', subsOpen: new Set(['stat']), xOpen: false, results: { interest: null, course: null }, resultMode: null, scrollEnd: false });
+const clone = s => ({ ...s, answers: s.answers.slice(), checked: new Set(s.checked), subsOpen: new Set(s.subsOpen), results: { ...s.results } });
+let st = fresh();
+let view = 'proto';
+let timer = null;
+
+function compute(s) {
+  if (s.resultMode === 'interest') s.results.interest = M.interestResult(s.answers);
+  else if (s.resultMode === 'course') s.results.course = M.courseResult(s.checked, s.dept);
+}
+
+// ── 공통 조각 ─────────────────────────────────────────
+const header = (inner) => `<div class="ah">${inner}</div>`;
+const backBtn = '<button class="ib" data-act="back" aria-label="뒤로">' + ICON.back + '</button>';
+const fullName = t => M.MD[t].full;
+function badge(slot) {
+  if (slot.tier === 0) {
+    const via = slot.openCodes.includes(slot.main) ? '' : ` · ${slot.openCodes[0]}`;
+    return `<span class="bd open">${M.TERM} 개설${via}</span>`;
+  }
+  return slot.tier === 2 ? '<span class="bd x">학점교류</span>' : '<span class="bd in">교내 · 이번 학기 없음</span>';
+}
+const cname = c => (M.C[c] || [c])[0];
+const J = M.J;
+const cmeta = c => `${c} · ${(M.C[c] || ['', ''])[1]}`;
+
+// ── 화면 렌더 ─────────────────────────────────────────
+function renderScreen(s, live) {
+  const R = { S0, S1, S2, S3, S4, S5, S6 }[s.screen];
+  return R(s, live);
+}
+
+function S0() {
+  const chips = [['빅데이터초급', 25, 50], ['빅데이터관리', 222, 42], ['빅데이터분석', 0, 150], ['머신러닝', null, 140], ['빅데이터마이닝', 28, 244], ['빅데이터고급', 214, 262]];
+  return `${SB}
+  <div class="ab">
+    <span class="pill">빅데이터 표준 마이크로디그리 유형 테스트</span>
+    <h1 class="s0-h">나에게 꼭 맞는<br><em>마이크로디그리는?</em></h1>
+    <p class="s0-sub">간단한 질문에 답하고<br>나의 빅데이터 성향과 추천 MD를 알아보세요</p>
+    <div class="orbit" aria-hidden="true"><div class="ring"></div><img src="${MASCOT}" alt="">
+      ${chips.map(([t, x, y]) => `<span class="oc" style="${x == null ? 'right:0' : 'left:' + x + 'px'};top:${y}px">${t}</span>`).join('')}
+    </div>
+  </div>
+  <div class="af"><button class="cta" data-act="start">테스트 시작하기</button><p class="copy">© 서울시립대학교 빅데이터혁신융합대학</p></div>`;
+}
+
+function S1(s) {
+  const card = (v, icon, title, sub, meta) => `<button class="mode${s.mode === v ? ' on' : ''}" data-act="mode" data-v="${v}">
+    <span class="mi">${icon}</span><span><b>${title}</b><small>${sub}</small><span class="mm">${meta.map(m => `<i>${m}</i>`).join('')}</span></span><span class="chev">${ICON.right}</span></button>`;
+  return `${SB}${header(backBtn)}
+  <div class="ab">
+    <h2 class="t">어떤 방식으로<br>알아볼까요?</h2>
+    <p class="st">결과를 본 뒤 다른 방식으로도 다시 확인할 수 있어요</p>
+    <div class="modes">
+      ${card('interest', ICON.spark, '흥미 기반으로 알아보기', '아직 들은 과목이 없거나 적어요', ['8문항', '약 2분'])}
+      ${card('course', ICON.list, '과목 기반으로 알아보기', '들은 과목을 체크하면 MD별 진행률을 알려줘요', ['과목 체크', '약 3분'])}
+    </div>
+    <p class="hint">${ICON.info}<span>어떤 걸 고를지 모르겠다면 흥미 기반부터 시작해 보세요</span></p>
+  </div>`;
+}
+
+function S2(s) {
+  const linked = s.dept && M.LINKED[s.dept];
+  return `${SB}${header(backBtn)}
+  <div class="ab">
+    <h2 class="t">어느 학과인가요?</h2>
+    <p class="st">학과에 연계융합 MD가 있으면 결과에서 함께 알려드려요</p>
+    <div class="depts">
+      ${M.DEPTS.map(d => `<button class="dept${s.dept === d ? ' on' : ''}" data-act="dept" data-v="${d}">${d}</button>`).join('')}
+      <button class="dept wide${s.dept === null ? ' on' : ''}" data-act="dept" data-v="">그 외 학과</button>
+    </div>
+    ${linked ? `<p class="dnote">${esc(s.dept)}에는 <b>${linked.map(l => l.md).join(', ')}</b> 연계융합 MD가 있어요</p>` : s.dept === null ? '<p class="dnote">표준 MD 6종 중에서 추천해 드릴게요</p>' : ''}
+  </div>
+  <div class="af"><button class="cta" data-act="next"${s.dept === undefined ? ' disabled' : ''}>다음</button><button class="txt-btn" data-act="skip">건너뛰기</button></div>`;
+}
+
+function S3(s) {
+  const q = M.QS[s.q];
+  const pct = ((s.q + 1) / 8) * 100;
+  return `${SB}${header(`${backBtn}<div class="prog" role="progressbar" aria-valuemin="1" aria-valuemax="8" aria-valuenow="${s.q + 1}"><span style="width:${pct}%"></span></div><span class="pc">${s.q + 1}/8</span>`)}
+  <div class="ab">
+    <span class="eyebrow">Q${s.q + 1} · ${q.axis}</span>
+    <h2 class="qt">${esc(q.q)}</h2>
+    <div class="opts">
+      ${q.opts.map((o, i) => `<button class="opt${s.answers[s.q] === i ? ' on' : ''}" data-act="answer" data-v="${i}"><span class="ol">${'ABCD'[i]}</span><span>${esc(o)}</span></button>`).join('')}
+    </div>
+  </div>`;
+}
+
+// S4 — 목록은 따로 그려서 검색 중에도 입력창이 유지되게
+function S4(s, live) {
+  return `${SB}${header(`${backBtn}<span class="ht">들은 과목 체크</span>`)}
+  <div class="ab">
+    <p class="lead">들었거나 지금 듣고 있는 과목을<br>모두 골라주세요</p>
+    <p class="note">${ICON.info}<span>인정은 과목명이 아니라 교과번호로 판정해요. 번호를 꼭 확인해 주세요</span></p>
+    <label class="search">${ICON.search}<input ${live ? 'id="course-search"' : ''} type="search" placeholder="과목명 또는 교과번호로 찾기" value="${esc(s.search)}" autocomplete="off" aria-label="과목 검색"></label>
+    <div class="s4-list">${S4list(s)}</div>
+  </div>
+  <div class="af s4-foot">${S4foot(s)}</div>`;
+}
+function S4foot(s) {
+  const n = s.checked.size;
+  return n ? `<button class="cta" data-act="result">결과 보기 <small>${n}개 선택</small></button>`
+    : `<button class="cta line" data-act="tointerest">아직 들은 과목이 없다면? 흥미 기반으로</button>`;
+}
+function matchText(q, strs) { return strs.some(t => t.toLowerCase().includes(q)); }
+function hl(text, q) {
+  if (!q) return esc(text);
+  const i = text.toLowerCase().indexOf(q);
+  return i < 0 ? esc(text) : esc(text.slice(0, i)) + '<mark class="hl">' + esc(text.slice(i, i + q.length)) + '</mark>' + esc(text.slice(i + q.length));
+}
+function courseBtn(code, s, q, cls, label) {
+  const on = s.checked.has(code);
+  const [nm, dp] = M.C[code] || [label, ''];
+  const meta = code.startsWith('x:') ? '교내 미개설 · 타 대학 학점교류' : (M.SLOTS.some(sl => sl.old.includes(code)) || Object.values(M.LINKED).flat().some(l => l.old && l.old[code]) ? `${code} · 구 교과번호` : `${code} · ${dp}`);
+  return { on, html: `<button class="crs ${cls}${on ? ' on' : ''}" data-act="code" data-v="${code}" aria-pressed="${on}"><span class="cb">${ICON.check}</span><span><b>${hl(label || nm, q)}</b><small>${hl(meta, q)}</small></span>` };
+}
+function slotCard(sl, s, q) {
+  const forced = q && matchText(q, [...sl.subs, ...sl.old].flatMap(c => [c, ...(M.C[c] || [])]));
+  const open = s.subsOpen.has(sl.id) || forced;
+  const main = courseBtn(sl.exchange ? sl.codes[0] : sl.main, s, q, 'main', sl.exchange ? sl.name : null);
+  const extra = [...sl.subs, ...sl.old];
+  const subs = extra.map(c => courseBtn(c, s, q, 'sub'));
+  const any = main.on || subs.some(x => x.on);
+  return `<div class="slot${any ? ' on' : ''}">${main.html}<span class="tg">${sl.md.map(m => `<i>${m}</i>`).join('')}</span></button>
+    ${extra.length ? `<button class="more${open ? ' open' : ''}" data-act="subs" data-v="${sl.id}" aria-expanded="${!!open}">이 과목도 인정돼요 · ${extra.length}개 ${ICON.chev}</button>` : ''}
+    ${extra.length && open ? `<div class="subs">${subs.map(x => x.html + '</button>').join('')}</div>` : ''}</div>`;
+}
+function S4list(s) {
+  const q = s.search.trim().toLowerCase();
+  const hit = sl => !q || matchText(q, [sl.name, ...sl.codes, ...sl.codes.flatMap(c => M.C[c] || [])]);
+  let out = '';
+  const linked = s.dept && M.LINKED[s.dept];
+  if (linked) {
+    const rows = linked.map(l => {
+      const codes = [...l.courses, ...Object.keys(l.old || {})].filter(c => !q || matchText(q, [c, ...(M.C[c] || [])]));
+      if (!codes.length) return '';
+      return `<div class="slot${codes.some(c => s.checked.has(c)) ? ' on' : ''}" style="padding-bottom:4px">
+        <div style="padding:10px 12px 2px;font-size:12.5px;font-weight:700;color:var(--a-blue)">${esc(l.md)} 지정 과목 · 2개 필요</div>
+        <div class="subs" style="padding:0">${codes.map(c => courseBtn(c, s, q, 'sub').html + '</button>').join('')}</div></div>`;
+    }).join('');
+    if (rows) out += `<section class="grp"><h3>내 학과 연계 과목 <small>${esc(s.dept)}</small></h3><div class="slots">${rows}</div><p class="gnote">연계융합 MD의 필수 과목인 빅데이터개론(02098)은 아래 기초 묶음에서 골라주세요</p></section>`;
+  }
+  M.GROUPS.forEach(g => {
+    const list = M.SLOTS.filter(sl => sl.group === g.id && hit(sl));
+    if (list.length) out += `<section class="grp"><h3>${g.name} <small>${list.length}</small></h3><div class="slots">${list.map(sl => slotCard(sl, s, q)).join('')}</div></section>`;
+  });
+  const xs = M.SLOTS.filter(sl => sl.exchange && hit(sl));
+  if (xs.length) {
+    const open = s.xOpen || !!q;
+    out += `<section class="grp"><button class="xh${open ? ' open' : ''}" data-act="xopen" aria-expanded="${open}">타 대학 학점교류로 들은 과목 <small>${xs.length}</small>${ICON.chev}</button>
+      ${open ? `<div class="slots" style="margin-top:8px">${xs.map(sl => slotCard(sl, s, q)).join('')}</div>` : ''}</section>`;
+  }
+  return out || `<p class="empty">검색어와 맞는 과목이 없어요.<br>교과번호 다섯 자리로 다시 찾아보세요</p>`;
+}
+
+function S5(s) {
+  const what = s.resultMode === 'course' ? `체크한 과목 ${s.checked.size}개를 MD 6종에 맞춰보는 중` : '응답 8개로 준비도와 관심 방향을 계산하는 중';
+  return `${SB}<div class="ab"><div class="load"><img src="${MASCOT}" alt=""><p>나에게 맞는 MD를<br>찾고 있어요</p><span class="dots"><i></i><i></i><i></i></span><small>${what}</small></div></div>`;
+}
+
+// ── S6 결과 ──
+function S6(s) {
+  const r = s.results[s.resultMode];
+  if (!r) return S0();
+  const md = M.MD[r.main];
+  const isI = r.mode === 'interest';
+  let h = `${SB}${header(`<span class="ht" style="padding-left:12px">나의 결과</span><button class="ib" data-act="home" aria-label="처음으로">${ICON.close}</button>`)}<div class="ab">`;
+  // 히어로
+  h += `<section class="hero"><img src="${MASCOT}" alt="">
+    <span class="eyebrow">${isI ? (r.stage === '입문' ? '지금 시작하기 좋은 MD' : '나의 빅데이터 유형') : '지금 가장 가까운 MD'}</span>
+    <h2 class="pn">${md.persona}</h2>
+    <span class="mdpill">${md.full} MD${isI ? '' : ` <span class="mp">${r.prog[r.main]}/4</span>`}</span>
+    <p class="pl">${md.line}</p>
+    <div class="htags">${md.tags.map(t => `<i>#${t}</i>`).join('')}</div>
+    ${isI && r.next ? `<div class="next"><span class="nb">다음 목표</span><b>${fullName(r.next)}</b> MD</div>` : ''}
+  </section>`;
+  // 과목 기반 특수 카드
+  if (!isI && r.done.length) {
+    h += `<section class="card good"><h3>이미 요건을 채웠어요</h3><p class="cs" style="margin:0">${r.done.map(fullName).join(', ')} MD는 4과목을 모두 들었어요. 졸업 전에 인증을 신청하세요.${r.done.length >= 3 ? ' 증명서에는 2개 과정까지 기재돼요.' : ''}</p></section>`;
+  }
+  if (!isI && r.weak) {
+    h += `<section class="card warn"><h3>아직 판단 근거가 적어요</h3><p class="cs" style="margin:0">모든 MD가 1과목 이하라서 진행률만으로는 추천이 약해요. 흥미 기반으로도 확인해 보세요.</p><button class="cta line mini" data-act="other">흥미 기반으로 알아보기</button></section>`;
+  }
+  // 근거
+  if (isI) {
+    const max = 12;
+    h += `<section class="card"><h3>왜 이 결과가 나왔나요</h3><p class="cs">준비도로 단계를, 관심 점수로 방향을 정했어요</p>
+      <p class="sub-h">준비도 ${r.ready}/6 · <span style="color:var(--a-blue)">${r.stage} 단계</span></p>
+      <div class="ready">${Array.from({ length: 7 }, (_, i) => `<i class="${i <= r.ready ? 'f' : ''}"></i>`).join('')}</div>
+      <div class="ready-l"><span${r.stage === '입문' ? ' style="color:var(--a-blue);font-weight:700"' : ''}>입문 0–1</span><span${r.stage === '성장' ? ' style="color:var(--a-blue);font-weight:700"' : ''}>성장 2–4</span><span${r.stage === '심화' ? ' style="color:var(--a-blue);font-weight:700"' : ''}>심화 5–6</span></div>
+      <p class="sub-h">관심 점수</p>
+      <div class="rbars">${M.INTEREST.slice().sort((a, b) => r.scores[b] - r.scores[a] || M.ORDER.indexOf(a) - M.ORDER.indexOf(b)).map(t => `<div class="rbar${t === r.top ? ' top' : ''}"><span>${fullName(t)}</span><span class="tr"><span class="fl" style="width:${(r.scores[t] / max) * 100}%"></span></span><span class="v">${r.scores[t]}</span></div>`).join('')}</div>
+      ${r.tie ? `<p class="fine-n">${J(r.tie.map(fullName).join('·'), '이', '가')} 동점이라 ${r.how === 'Q8' ? '5년 뒤 모습(Q8)으' : r.how === 'Q5' ? '팀플 역할(Q5)' : '정해진 순서'}로 골랐어요</p>` : ''}
+    </section>`;
+  } else {
+    h += `<section class="card"><h3>MD별 진행률</h3><p class="cs">체크한 과목 ${s.checked.size}개를 교과번호로 맞춰봤어요</p>
+      <div class="rbars">${r.ranked.map(t => `<div class="rbar${t === r.main ? ' top' : ''}${r.prog[t] === 4 ? ' done' : ''}"><span>${fullName(t)}</span><span class="pips">${[0, 1, 2, 3].map(i => `<i class="${i < r.prog[t] ? 'f' : ''}"></i>`).join('')}</span><span class="v">${r.prog[t]}/4</span></div>`).join('')}</div>
+      ${r.tie ? `<p class="fine-n">${J(r.tie.map(fullName).join('·'), '이', '가')} 동점이라 이번 학기에 열리는 남은 과목이 더 많은 쪽을 골랐어요</p>` : ''}
+    </section>`;
+  }
+  // 로드맵
+  if (isI) {
+    h += `<section class="card"><h3>추천 수강 로드맵</h3><p class="cs">${md.full} MD · 4과목(12학점)을 들으면 이수</p><ol class="road">${md.rep.map((id, i) => {
+      const sl = M.SLOT[id];
+      return `<li><span class="rk">${i + 1}</span><span><b>${sl.name}</b><small>${sl.main} · ${M.C[sl.main][1]}</small></span>${badge(sl)}</li>`;
+    }).join('')}</ol></section>`;
+  } else {
+    const takenSl = M.SLOTS.filter(sl => sl.md.includes(r.main) && r.taken.has(sl.id)).slice(0, 4);
+    const rows = takenSl.map(sl => {
+      const c = sl.codes.find(x => s.checked.has(x));
+      const nm = sl.exchange ? sl.name : cname(c);
+      const meta = sl.exchange ? '학점교류로 이수' : (c === sl.main ? `${c} · 들은 과목` : `${c} · ${sl.name} 인정`);
+      return `<li class="done"><span class="rk">${ICON.check.replace('<svg', '<svg width="14" height="14"')}</span><span><b>${nm}</b><small>${meta}</small></span></li>`;
+    }).concat(r.recs.map((sl, i) => `<li><span class="rk">${takenSl.length + i + 1}</span><span><b>${sl.name}</b><small>${sl.exchange ? '교내 미개설' : `${sl.main} · ${M.C[sl.main][1]}`}</small></span>${badge(sl)}</li>`));
+    h += `<section class="card"><h3>${r.recs.length ? `${r.recs.length}과목만 더 들으면 돼요` : '4과목을 모두 들었어요'}</h3><p class="cs">${md.full} MD 로드맵 · 남은 과목은 이번 학기 개설 과목부터 추천</p><ol class="road">${rows.join('')}</ol></section>`;
+  }
+  // 함께 따기 / 다음 목표
+  if (isI && r.next) {
+    const nx = M.MD[r.next];
+    h += `<section class="card"><h3>다음 목표 · ${nx.full}</h3><p class="cs">초급으로 기초를 다진 뒤 이어서 도전해 보세요</p><ol class="road">${nx.rep.map((id, i) => { const sl = M.SLOT[id]; return `<li><span class="rk">${i + 1}</span><span><b>${sl.name}</b><small>${sl.main} · ${M.C[sl.main][1]}</small></span>${badge(sl)}</li>`; }).join('')}</ol></section>`;
+  } else {
+    const p = isI ? M.interestPartner(r.main) : r.partner;
+    if (p) {
+      const free = !isI && p.k === p.needA;
+      const swap = free && p.slots.some(sl => !r.recs.includes(sl));
+      const msg = isI ? `대표 4과목에 <b>${p.k}과목</b>만 더하면 <b>${fullName(p.md)}</b> MD까지 받을 수 있어요`
+        : free ? (swap ? `추천 과목 대신 아래 과목을 들으면 추가 부담 없이 <b>${fullName(p.md)}</b> MD까지 4/4가 돼요` : `추천 과목만 들어도 <b>${fullName(p.md)}</b> MD까지 함께 채워져요`)
+        : `지금부터 <b>${p.k}과목</b>이면 ${J(fullName(r.main), '과', '와')} <b>${J(fullName(p.md), '을', '를')}</b> 함께 받을 수 있어요 (${fullName(r.main)}만은 ${p.needA}과목)`;
+      h += `<section class="card"><h3>함께 따기 좋은 MD</h3><p class="cs">겹치는 과목은 두 MD에 동시에 인정돼요</p>
+        <div class="pair"><span class="pk">${isI ? '+' : ''}${p.k}<small>과목</small></span><p>${msg}</p></div>
+        <ol class="road">${p.slots.map(sl => `<li><span class="rk">+</span><span><b>${sl.name}</b><small>${sl.md.join('·')}에 인정</small></span>${badge(sl)}</li>`).join('')}</ol>
+        <p class="fine-n">졸업·성적증명서에는 2개 과정까지 기재돼요</p></section>`;
+    }
+  }
+  // 연계융합
+  const linked = M.LINKED[s.dept];
+  if (linked) {
+    h += `<section class="card"><h3>내 학과 연계융합 MD</h3><p class="cs">${esc(s.dept)} 전공과 묶어 받는 과정이에요</p>`;
+    const lp = isI ? linked.map(l => ({ ...l, req: false, designated: [], major: null, n: null })) : r.linked;
+    lp.forEach(l => {
+      const ck = f => `<span class="ck${f ? ' f' : ''}">${f ? ICON.check : ''}</span>`;
+      h += `<div class="lk"><div class="lk-h"><b>${esc(l.md)}</b>${l.n != null ? `<span class="bd ${l.n === 4 ? 'ok' : 'in'}">${l.n}/4</span>` : ''}</div>
+        <ul class="reqs">
+          <li>${ck(l.req)}<span>빅데이터개론 02098 <b>필수</b></span></li>
+          <li>${ck(l.designated.length >= 2)}<span>지정 과목 중 2개${l.n != null ? ` (${Math.min(l.designated.length, 2)}/2)` : ''}<span class="chips">${l.courses.map(c => `<span class="${l.designated.includes(c) ? 't' : M.OPEN.has(c) ? 'o' : ''}">${cname(c)} ${c}</span>`).join('')}</span></span></li>
+          <li>${ck(!!l.major)}<span>빅데이터전공 교과목 1개${l.major ? ` · ${cname(l.major)}` : ' · 표준 MD 과목 대부분 해당'}</span></li>
+        </ul></div>`;
+    });
+    h += `<p class="fine-n">파란 테두리는 ${M.TERM}학기 개설 과목이에요. 타과 전공은 졸업학점에서 일반선택으로 인정될 수 있어요</p></section>`;
+  }
+  // 두 방식 비교
+  const other = s.results[isI ? 'course' : 'interest'];
+  if (other) {
+    const same = other.main === r.main;
+    h += `<section class="card"><h3>두 방식 결과 비교</h3><p class="cs">${same ? '두 방식 모두 같은 MD를 가리켜요' : '관심 방향과 지금 가까운 MD가 달라요. 둘 다 고려해 보세요'}</p>
+      <div class="cmp"><div class="${isI ? 'cur' : ''}"><small>흥미 기반</small><b>${fullName((isI ? r : other).main)}</b></div><div class="${!isI ? 'cur' : ''}"><small>과목 기반</small><b>${fullName((isI ? other : r).main)}</b></div></div></section>`;
+  }
+  // 신청 방법
+  h += `<section class="card"><h3>이수 신청 방법</h3><p class="cs">복수 과정은 과정마다 따로 신청해요</p><ol class="steps">
+    <li><span><b>이수 신청</b><span class="path"><span>대학행정</span>›<span>학적</span>›<span>모듈형교육과정이수(포기) 신청</span>›<span class="btn">이수신청</span></span></span></li>
+    <li><span><b>지정 과목 수강</b><span class="path">4과목 · 12학점</span></span></li>
+    <li><span><b>이수 인증 신청</b><span class="path"><span>대학행정</span>›<span>학적</span>›<span>모듈형교육과정이수 인증 신청</span>›<span class="btn">인증신청</span></span><span class="must">졸업 전 반드시 신청 · 졸업 후 불가</span></span></li>
+  </ol></section>`;
+  h += `<p class="fine">추천 결과예요. 최종 인정은 교과번호 기준으로 사업단이 확인해요.<br>교과 문의 02-6490-6926~6927</p>`;
+  h += `<section class="end" data-s7><button class="cta" data-act="other">${isI ? '과목 기반으로도 알아보기' : '흥미 기반으로도 알아보기'}</button><div class="row2"><button class="sec" data-act="restart">다시 하기</button><button class="sec" data-act="save">결과 이미지 저장</button></div></section>`;
+  h += `</div><div class="toast" role="status"></div>`;
+  return h;
+}
+
+// ── 라이브 화면 ───────────────────────────────────────
+const live = document.getElementById('live');
+function paint(keepScroll) {
+  const ab = live.querySelector('.ab');
+  const top = keepScroll && ab ? ab.scrollTop : 0;
+  const f = document.activeElement && live.contains(document.activeElement) ? document.activeElement : null;
+  const fkey = f && f.dataset.act ? `[data-act="${f.dataset.act}"]${f.dataset.v != null ? `[data-v="${CSS.escape(f.dataset.v)}"]` : ''}` : null;
+  live.className = 'screen ' + ({ S0: 's0', S5: 's5', S6: 's6' }[st.screen] || '');
+  live.innerHTML = renderScreen(st, true);
+  const nab = live.querySelector('.ab');
+  if (nab) {
+    if (keepScroll) nab.scrollTop = top;
+    if (st.scrollEnd) { nab.scrollTop = nab.scrollHeight; st.scrollEnd = false; }
+  }
+  if (fkey) { const el = live.querySelector(fkey); if (el) el.focus({ preventScroll: true }); }
+  paintChrome();
+}
+function go(screen, extra = {}) {
+  clearTimeout(timer);
+  Object.assign(st, extra, { screen });
+  paint(false);
+  if (screen === 'S5') timer = setTimeout(() => { compute(st); go('S6'); }, 1500);
+}
+function toast(msg) {
+  const t = live.querySelector('.toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+live.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const v = b.dataset.v;
+  switch (b.dataset.act) {
+    case 'start': go('S1'); break;
+    case 'back':
+      if (st.screen === 'S1') go('S0');
+      else if (st.screen === 'S2') go('S1');
+      else if (st.screen === 'S3') st.q > 0 ? go('S3', { q: st.q - 1 }) : go('S2');
+      else if (st.screen === 'S4') go('S2');
+      break;
+    case 'mode': st.mode = v; paint(true); clearTimeout(timer); timer = setTimeout(() => go('S2'), 220); break;
+    case 'dept': st.dept = v || null; paint(true); break;
+    case 'skip': st.dept = null; // fallthrough
+    case 'next': st.mode === 'course' ? go('S4') : go('S3', { q: 0 }); break;
+    case 'answer': {
+      st.answers[st.q] = +v; paint(true); clearTimeout(timer);
+      timer = setTimeout(() => { st.q < 7 ? go('S3', { q: st.q + 1 }) : go('S5', { resultMode: 'interest' }); }, 320);
+      break;
+    }
+    case 'code': st.checked.has(v) ? st.checked.delete(v) : st.checked.add(v); updateS4(); break;
+    case 'subs': st.subsOpen.has(v) ? st.subsOpen.delete(v) : st.subsOpen.add(v); updateS4(); break;
+    case 'xopen': st.xOpen = !st.xOpen; updateS4(); break;
+    case 'result': go('S5', { resultMode: 'course' }); break;
+    case 'tointerest': go('S3', { mode: 'interest', q: 0 }); break;
+    case 'other':
+      if (st.resultMode === 'interest') go('S4', { mode: 'course' });
+      else go('S3', { mode: 'interest', q: 0 });
+      break;
+    case 'home': case 'restart': st = fresh(); go('S0'); break;
+    case 'save': toast('목업이에요. 실제 앱에서는 결과 카드가 이미지로 저장돼요'); break;
+  }
+});
+live.addEventListener('input', e => {
+  if (e.target.id !== 'course-search') return;
+  st.search = e.target.value;
+  live.querySelector('.s4-list').innerHTML = S4list(st);
+  paintSpec();
+});
+function updateS4() {
+  const ab = live.querySelector('.ab'), top = ab.scrollTop;
+  const f = document.activeElement, key = f && f.dataset && f.dataset.act ? `[data-act="${f.dataset.act}"][data-v="${CSS.escape(f.dataset.v || '')}"]` : null;
+  live.querySelector('.s4-list').innerHTML = S4list(st);
+  live.querySelector('.s4-foot').innerHTML = S4foot(st);
+  ab.scrollTop = top;
+  if (key) { const el = live.querySelector(key); if (el) el.focus({ preventScroll: true }); }
+  paintChrome();
+}
+
+// ── 흐름 목록 · 캡션 · 스펙 패널 ─────────────────────
+const NAV = [
+  ['공통', [['S0', '시작', '첫 화면 시안'], ['S1', '모드 선택', '흥미 / 과목 분기'], ['S2', '학과 선택', '건너뛰기 가능']]],
+  ['흥미 기반', [['S3', '흥미 질문', '준비도 2 + 관심 6문항']]],
+  ['과목 기반', [['S4', '과목 체크', '슬롯 20개 + 학점교류 6개']]],
+  ['결과', [['S5', '계산 중', '1.5초 연출'], ['S6', '결과', '유형 · 로드맵 · 함께 따기'], ['S7', '마무리', '다른 방식 · 다시 하기 · 저장']]],
+];
+const SAMPLE_I = [2, 1, 1, 0, 2, 1, 1, 1];
+const SAMPLE_I0 = [0, 1, 2, 1, 1, 2, 2, 2];
+const SAMPLE_C = ['41510', '92005', '47770', '47772', '64223', '41518'];
+const PRESETS = [
+  ['i-grow', '흥미 결과 · 성장 단계', '준비도 3 · 머신러닝 10점'],
+  ['i-start', '흥미 결과 · 입문 단계', '준비도 1 → 초급, 다음 목표 마이닝'],
+  ['c-sample', '과목 결과 · 교통공학과', '6과목 체크 · 분석/머신러닝 동점'],
+  ['c-empty', '과목 체크 0개', '흥미 기반으로 넘기는 예외'],
+];
+function preset(id) {
+  const s = fresh();
+  if (id === 'i-grow') Object.assign(s, { screen: 'S6', mode: 'interest', resultMode: 'interest', answers: SAMPLE_I.slice(), q: 7, dept: '교통공학과' });
+  if (id === 'i-start') Object.assign(s, { screen: 'S6', mode: 'interest', resultMode: 'interest', answers: SAMPLE_I0.slice(), q: 7, dept: null });
+  if (id === 'c-sample') Object.assign(s, { screen: 'S6', mode: 'course', resultMode: 'course', checked: new Set(SAMPLE_C), dept: '교통공학과' });
+  if (id === 'c-empty') Object.assign(s, { screen: 'S4', mode: 'course', dept: null });
+  if (s.screen === 'S6') compute(s);
+  return s;
+}
+// 결과 화면으로 바로 갈 때 아직 응답이 없으면 예시 응답으로 채움
+function ensureResult() {
+  if (st.mode === 'course' && st.checked.size) st.resultMode = 'course';
+  else if (st.mode === 'interest' || !st.resultMode) {
+    st.resultMode = 'interest';
+    if (st.answers.some(a => a == null)) st.answers = SAMPLE_I.slice();
+  }
+  compute(st);
+}
+function jump(id) {
+  clearTimeout(timer);
+  if (id === 'S3') { const nx = st.answers.findIndex(a => a == null); go('S3', { mode: 'interest', q: nx < 0 ? 7 : nx }); return; }
+  if (id === 'S4') { go('S4', { mode: 'course' }); return; }
+  if (id === 'S5') { ensureResult(); go('S5'); return; }
+  if (id === 'S6' || id === 'S7') { ensureResult(); go('S6', { scrollEnd: id === 'S7' }); return; }
+  go(id);
+}
+
+let atEnd = false;
+const curId = () => (st.screen === 'S6' && atEnd ? 'S7' : st.screen);
+function checkEnd() {
+  const ab = live.querySelector('.ab');
+  const e = st.screen === 'S6' && !!ab && ab.scrollTop + ab.clientHeight >= ab.scrollHeight - 160;
+  if (e !== atEnd) { atEnd = e; paintChrome(true); }
+}
+function paintChrome(fromScroll) {
+  if (!fromScroll) { const ab = live.querySelector('.ab'); atEnd = st.screen === 'S6' && !!ab && ab.scrollTop + ab.clientHeight >= ab.scrollHeight - 160; }
+  paintNav(); paintCap(); paintSpec();
+}
+function paintNav() {
+  const nav = document.getElementById('nav');
+  let h = '<h2>화면 흐름</h2>';
+  NAV.forEach(([g, items]) => {
+    h += `<div class="nav-grp"><span>${g}</span>`;
+    items.forEach(([id, name, sub]) => {
+      h += `<button class="nav-item" data-jump="${id}" aria-current="${curId() === id}"><span class="sid">${id}</span><span><b>${name}</b><small>${sub}</small></span></button>`;
+      if (id === 'S3') h += `<div class="qdots">${st.answers.map((a, i) => `<button class="qdot${a != null ? ' on' : ''}${st.screen === 'S3' && st.q === i ? ' cur' : ''}" data-q="${i}" aria-label="Q${i + 1}">${i + 1}</button>`).join('')}</div>`;
+    });
+    h += '</div>';
+  });
+  h += `<div class="presets"><h2 style="margin:0 0 4px">예시로 바로 보기</h2>${PRESETS.map(([id, t, d]) => `<button class="preset" data-preset="${id}"><b>${t}</b><small>${d}</small></button>`).join('')}</div>`;
+  nav.innerHTML = h;
+  const strip = document.getElementById('strip');
+  strip.innerHTML = NAV.flatMap(([, items]) => items).map(([id, name]) => `<button data-jump="${id}" aria-current="${curId() === id}"><span class="sid">${id}</span>${name}</button>`).join('') + '<span class="sep"></span>' + PRESETS.map(([id, t]) => `<button data-preset="${id}">${t}</button>`).join('');
+}
+function paintCap() {
+  const names = { S0: '시작', S1: '모드 선택', S2: '학과 선택', S3: `흥미 질문 ${st.q + 1}/8`, S4: '과목 체크', S5: '계산 중', S6: '결과', S7: '마무리' };
+  document.getElementById('cap').innerHTML = `<span class="sid mono">${curId()}</span><span>${names[curId()]}</span><span class="muted">· 화면을 직접 눌러 진행해 보세요</span>`;
+}
+const sbar = (label, v, max, cls, txt) => `<div class="sbar ${cls || ''}"><span>${label}</span><span class="tr"><span class="fl" style="width:${Math.min(100, (v / max) * 100)}%"></span></span><span class="v">${txt ?? v}</span></div>`;
+function paintSpec() {
+  const el = document.getElementById('spec');
+  const s = st;
+  let h = '<h2>이 화면의 로직</h2>';
+  if (s.screen === 'S0') {
+    h += `<h3>S0 시작</h3><p class="lede">첨부한 첫 화면 시안을 그대로 옮겼어요. 표준 MD 6종을 미리 보여줘 결과 범위를 알려줍니다.</p>
+      <div class="spec-sec"><h4>동작</h4><ul><li>설명회 QR로 진입, 로그인·개인정보 없음</li><li>[테스트 시작하기] → S1</li><li>응답은 기기 안에서만 계산</li></ul></div>`;
+  } else if (s.screen === 'S1') {
+    h += `<h3>S1 모드 선택</h3><p class="lede">카드를 누르면 모드를 기억하고 바로 학과 선택으로 넘어가요.</p>
+      <div class="spec-sec"><h4>분기</h4><ul><li><b>흥미 기반</b> → S2 → S3 (8문항)</li><li><b>과목 기반</b> → S2 → S4</li><li>결과 화면의 [다른 방식으로도]가 반대 분기로 보냄</li></ul></div>
+      <div class="spec-sec"><h4>현재 상태</h4><dl class="kv"><dt>mode</dt><dd class="mono">${s.mode || '—'}</dd></dl></div>`;
+  } else if (s.screen === 'S2') {
+    const l = s.dept && M.LINKED[s.dept];
+    h += `<h3>S2 학과 선택</h3><p class="lede">연계융합 MD가 있는 14개 학부·과와 ‘그 외 학과’. 건너뛰어도 진행돼요.</p>
+      <div class="spec-sec"><h4>쓰이는 곳</h4><ul><li>과목 기반: S4 맨 위에 ‘내 학과 연계 과목’ 묶음 추가</li><li>두 분기 모두: 결과에 연계융합 MD 카드</li></ul></div>
+      <div class="spec-sec"><h4>현재 선택</h4><dl class="kv"><dt>학과</dt><dd>${s.dept === undefined ? '—' : s.dept === null ? '그 외 / 건너뛰기' : esc(s.dept)}</dd><dt>연계융합</dt><dd>${l ? l.map(x => esc(x.md)).join(', ') : '없음'}</dd></dl></div>`;
+  } else if (s.screen === 'S3') {
+    const q = M.QS[s.q];
+    const ready = M.readiness(s.answers);
+    const sc = M.interestScores(s.answers);
+    if (ready >= 5) sc.고급 += 2;
+    const best = Math.max(...Object.values(sc));
+    h += `<h3>S3 · Q${s.q + 1} ${q.axis}</h3><p class="lede">${s.q < 2 ? 'A–D가 0–3점. Q1+Q2 합이 준비도(0–6)예요.' : '고른 선택지의 가산점이 관심 점수에 더해져요.'} 탭하면 0.3초 뒤 자동으로 넘어가요.</p>
+      <div class="spec-sec"><h4>선택지별 점수</h4><table class="opt-table">${q.opts.map((o, i) => `<tr class="${s.answers[s.q] === i ? 'sel' : ''}"><td>${'ABCD'[i]}</td><td>${esc(o)}</td><td>${s.q < 2 ? '준비도 +' + i : Object.entries(q.add[i]).map(([k, v]) => `${k} +${v}`).join('<br>')}</td></tr>`).join('')}</table></div>
+      <div class="spec-sec"><h4>지금까지 · 준비도 ${ready}/6 (${M.stageOf(ready)})</h4><div class="sbars">${M.INTEREST.map(t => sbar(t, sc[t], 12, sc[t] === best && best > 0 ? 'top' : '')).join('')}</div>
+      <p class="muted" style="font-size:12px;margin:8px 0 0">동점이면 Q8(커리어) → Q5(역할) → 고정 순서. 준비도 0–1이면 주 결과는 초급.${ready >= 5 ? ' 심화 단계라 고급 +2 반영.' : ''}</p></div>`;
+  } else if (s.screen === 'S4') {
+    const taken = M.takenSlots(s.checked);
+    const prog = Object.fromEntries(M.TYPES.map(t => [t, Math.min(M.count(t, taken), 4)]));
+    const top = Math.max(...Object.values(prog));
+    const lp = M.linkedProgress(s.dept, s.checked);
+    h += `<h3>S4 과목 체크</h3><p class="lede">교과번호가 슬롯의 번호 중 하나와 맞으면 그 슬롯을 채워요. 같은 슬롯 과목을 여러 개 골라도 1개로 셉니다.</p>
+      <div class="spec-sec"><h4>실시간 진행률 (n/4)</h4><div class="sbars">${M.TYPES.map(t => sbar(t, prog[t], 4, prog[t] === 4 ? 'done' : prog[t] === top && top > 0 ? 'top' : '', prog[t] + '/4')).join('')}</div></div>
+      ${lp.length ? `<div class="spec-sec"><h4>연계융합</h4><div class="sbars">${lp.map(l => sbar(l.md, l.n, 4, l.n === 4 ? 'done' : '', l.n + '/4')).join('')}</div><p class="muted" style="font-size:12px;margin:8px 0 0">개론 02098 필수 + 지정 2개 + 빅데이터전공 1개</p></div>` : ''}
+      <div class="spec-sec"><h4>선택한 교과번호 ${s.checked.size}개</h4>${s.checked.size ? `<div class="codes">${[...s.checked].map(c => `<span>${c.startsWith('x:') ? M.SLOT[c.slice(2)].name : c}</span>`).join('')}</div>` : '<p class="muted" style="margin:0;font-size:13px">0개면 하단 버튼이 흥미 기반으로 안내해요</p>'}</div>`;
+  } else if (s.screen === 'S5') {
+    h += `<h3>S5 계산 중</h3><p class="lede">계산은 즉시 끝나지만 1.5초 캐릭터 연출 뒤 결과로 넘어가요.</p>`;
+  } else if (s.screen === 'S6') {
+    const r = s.results[s.resultMode];
+    const end = atEnd;
+    h +=`<h3>${end ? 'S7 마무리' : 'S6 결과'} · ${s.resultMode === 'interest' ? '흥미 기반' : '과목 기반'}</h3><p class="lede">${end ? '결과 맨 아래의 행동 버튼. 다른 방식은 반대 분기로, 다시 하기는 S0로 보냅니다.' : '두 분기가 같은 결과 틀을 쓰고 근거 영역만 달라요.'}</p>`;
+    if (r) h += `<div class="spec-sec"><h4>판정 과정</h4><ol class="trace">${r.trace.map(t => `<li><span>${esc(t)}</span></li>`).join('')}</ol></div>`;
+    if (r && r.mode === 'interest' && r.main !== '초급') { const p = M.interestPartner(r.main); if (p) h += `<div class="spec-sec"><h4>함께 따기 계산</h4><p style="margin:0;font-size:13px">대표 4과목을 들었다고 보고, ${p.md}까지 4/4가 되는 최소 추가 과목: ${p.k}개 (${p.slots.map(x => x.name).join(', ')})</p></div>`; }
+    h += `<div class="spec-sec"><h4>결과 화면 구성</h4><ul><li>유형 카드 · 근거 · 로드맵</li><li>함께 따기 좋은 MD${r && r.next ? ' (입문은 다음 목표로 대체)' : ''}</li><li>연계융합 카드 (학과 선택 시)</li><li>이수 신청 방법 · 문의처</li><li>S7 버튼: 다른 방식 · 다시 하기 · 저장</li></ul></div>`;
+  }
+  el.innerHTML = h;
+}
+
+document.addEventListener('click', e => {
+  const j = e.target.closest('[data-jump]'); if (j) { jump(j.dataset.jump); return; }
+  const p = e.target.closest('[data-preset]'); if (p) { clearTimeout(timer); st = preset(p.dataset.preset); setView('proto'); paint(false); return; }
+  const q = e.target.closest('[data-q]'); if (q) { clearTimeout(timer); st.mode = 'interest'; go('S3', { q: +q.dataset.q }); return; }
+  const v = e.target.closest('[data-view]'); if (v) { setView(v.dataset.view); return; }
+  if (e.target.closest('[data-ui="restart"]')) { clearTimeout(timer); st = fresh(); setView('proto'); paint(false); return; }
+  const fr = e.target.closest('[data-frame]'); if (fr) { clearTimeout(timer); st = clone(FRAME_STATES[+fr.dataset.frame]); setView('proto'); paint(false); if (st.screen === 'S5') go('S5'); }
+});
+let raf = 0;
+live.addEventListener('scroll', () => { if (st.screen !== 'S6' || raf) return; raf = requestAnimationFrame(() => { raf = 0; checkEnd(); }); }, true);
+document.addEventListener('keydown', e => {
+  const fr = e.target.closest && e.target.closest('[data-frame]');
+  if (fr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); fr.click(); }
+});
+
+// ── 전체 플로우 ───────────────────────────────────────
+const FRAME_STATES = [];
+function fs(over) { const s = fresh(); Object.assign(s, over); if (s.screen === 'S6') compute(s); FRAME_STATES.push(s); return FRAME_STATES.length - 1; }
+const partial = n => SAMPLE_I.map((a, i) => (i < n ? a : null));
+const LANES = [
+  { cls: 'l-com', name: '공통', note: '모든 참여자', items: [
+    ['S0', '시작', '첫 화면 시안', { screen: 'S0' }],
+    ['S1', '모드 선택', '카드 탭 → 모드 기억', { screen: 'S1', mode: 'interest' }],
+    ['S2', '학과 선택', '연계융합 안내용 · 건너뛰기 가능', { screen: 'S2', mode: 'interest', dept: '교통공학과' }],
+  ] },
+  { cls: 'l-int', name: '흥미 기반', note: 'S1에서 ‘흥미’ 선택 · 저학년·비전공', items: [
+    ['S3', 'Q1 준비도', '경험 0–3점', { screen: 'S3', mode: 'interest', dept: '교통공학과', q: 0, answers: [2, null, null, null, null, null, null, null] }],
+    ['S3', 'Q5 관심 방향', '선택지별 가산점', { screen: 'S3', mode: 'interest', dept: '교통공학과', q: 4, answers: partial(5) }],
+    ['S5', '계산 중', '1.5초 연출', { screen: 'S5', mode: 'interest', resultMode: 'interest', answers: SAMPLE_I.slice() }],
+    ['S6', '결과 · 성장 단계', '머신러닝 + 함께 따기 + 연계융합', { screen: 'S6', mode: 'interest', resultMode: 'interest', answers: SAMPLE_I.slice(), dept: '교통공학과' }],
+    ['S6', '결과 · 입문 단계', '초급 + 다음 목표', { screen: 'S6', mode: 'interest', resultMode: 'interest', answers: SAMPLE_I0.slice(), dept: null }],
+  ] },
+  { cls: 'l-crs', name: '과목 기반', note: 'S1에서 ‘과목’ 선택 · 고학년·관련 전공', items: [
+    ['S4', '과목 체크', '내 학과 묶음 + 슬롯 카드', { screen: 'S4', mode: 'course', dept: '교통공학과', checked: new Set(SAMPLE_C) }],
+    ['S4', '0개 선택', '흥미 기반으로 안내', { screen: 'S4', mode: 'course', dept: null }],
+    ['S6', '결과 · 진행률', '동점 처리 · 1과목 남음', { screen: 'S6', mode: 'course', resultMode: 'course', dept: '교통공학과', checked: new Set(SAMPLE_C) }],
+    ['S7', '마무리', '결과 맨 아래 버튼', { screen: 'S6', mode: 'course', resultMode: 'course', dept: '교통공학과', checked: new Set(SAMPLE_C), scrollEnd: true }],
+  ] },
+];
+function buildBoard() {
+  const board = document.getElementById('board');
+  let h = '';
+  LANES.forEach(l => {
+    h += `<div class="lane ${l.cls}"><div class="lane-h"><b><i></i>${l.name}</b><small>${l.note}</small></div>`;
+    l.items.forEach(([id, name, note, over], i) => {
+      const k = fs(over);
+      if (i) h += `<span class="arr" aria-hidden="true">${ICON.arrow}</span>`;
+      h += `<div class="fr"><div class="fr-box" role="button" tabindex="0" data-frame="${k}" aria-label="${id} ${name} 프로토타입에서 열기"><div class="screen ${({ S0: 's0', S5: 's5', S6: 's6' })[over.screen] || ''}" inert>${renderScreen(FRAME_STATES[k], false)}</div></div>
+        <div class="fr-cap"><span class="sid">${id}</span><b>${name}</b><small>${note}</small></div></div>`;
+    });
+    if (l.cls === 'l-crs') h += `<div class="loop-note"><b>S7 → 반대 분기</b>[흥미 기반으로도]를 누르면 S3로, 흥미 결과에서는 S4로 가요. 두 결과는 ‘두 방식 결과 비교’ 카드로 함께 보여줘요.</div>`;
+    if (l.cls === 'l-com') h += `<div class="loop-note"><b>S2 → 두 갈래</b>흥미 기반은 S3, 과목 기반은 S4로. 과목 기반에서 0개를 고르면 S3로 넘어가요.</div>`;
+    h += '</div>';
+  });
+  board.innerHTML = h;
+  board.querySelectorAll('.fr-box').forEach(b => {
+    const s = FRAME_STATES[+b.dataset.frame];
+    if (s.scrollEnd) { const ab = b.querySelector('.ab'); ab.scrollTop = ab.scrollHeight; }
+  });
+}
+
+function setView(v) {
+  view = v;
+  document.getElementById('view-proto').hidden = v !== 'proto';
+  document.getElementById('view-flow').hidden = v !== 'flow';
+  document.querySelectorAll('.seg [data-view]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
+  if (v === 'flow' && !document.getElementById('board').innerHTML) buildBoard();
+  if (v === 'flow') { const sc = document.querySelector('.ov-scroll'); requestAnimationFrame(() => { sc.scrollLeft = 0; }); }
+}
+
+paint(false);
+const hash = (location.hash || '').slice(1);
+if (hash === 'flow') setView('flow');
+})();
+</script>

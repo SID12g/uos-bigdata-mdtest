@@ -1,0 +1,67 @@
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--gradient-screen);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: 52px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 var(--gutter);
+  padding-top: env(safe-area-inset-top, 0px);
+  box-sizing: content-box;
+  background: var(--color-bg);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--gutter) 28px;
+}
+
+.footer {
+  flex: none;
+  display: grid;
+  gap: 12px;
+  padding: 12px var(--gutter) calc(40px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 목록이 긴 화면(S4)은 하단 버튼을 고정하고, 뒤로 지나가는 내용을 가린다 */
+.sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to bottom, transparent, var(--color-bg-end) 12px);
+}
+
+/* 아이콘은 Figma처럼 왼쪽 끝에 붙이고, 누르는 영역만 44px로 넓힌다 */
+.iconBtn {
+  width: var(--tap);
+  height: 52px;
+  flex: none;
+  margin-right: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: var(--radius-sm);
+}
+
+.iconBtn img {
+  width: 24px;
+  height: 24px;
+}
+
+.title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-heading);
+}
