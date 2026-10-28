@@ -589,6 +589,14 @@
   gap: 8px;
 }
 
+.disclaimer {
+  margin: 20px 6px 0;
+  text-align: center;
+  color: var(--color-text-sub);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
 .row2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

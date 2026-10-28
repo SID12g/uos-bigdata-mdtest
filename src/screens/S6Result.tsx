@@ -443,6 +443,9 @@ export function S6Result({ result: r, other, dept, checked, onTryOther, onRestar
           </button>
         </div>
       </section>
+      <p className={styles.disclaimer}>
+        테스트 내용은 참고용이며 정확하지 않을 수 있습니다. MD 이수에 관한 자세한 사항은 학교 홈페이지를 확인하시거나 담당자에게 문의해 주세요.
+      </p>
       <Toast message={toast} />
     </Screen>
   )
