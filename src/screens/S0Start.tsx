@@ -24,7 +24,12 @@ export function S0Start({ onStart }: { onStart: () => void }) {
           <button type="button" className={ui.cta} onClick={onStart}>
             테스트 시작하기
           </button>
-          <p className={styles.copy}>© 서울시립대학교 빅데이터혁신융합대학사업단</p>
+          <div className={styles.notes}>
+            <p className={styles.disclaimer}>
+              테스트 내용은 참고용이며 정확하지 않을 수 있습니다. MD 이수에 관한 자세한 사항은 학교 홈페이지를 확인하시거나 담당자에게 문의해 주세요.
+            </p>
+            <p className={styles.copy}>© 서울시립대학교 빅데이터혁신융합대학사업단</p>
+          </div>
         </>
       }
     >
